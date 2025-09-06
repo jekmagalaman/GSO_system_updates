@@ -1,0 +1,46 @@
+{% extends "unit_heads/unit_head_base_dashboard.html" %}
+
+{% block title %}Request Management{% endblock %}
+
+{% block main_content %}
+<div class="header">
+    <h1 class="page-title">REQUEST HISTORY</h1>
+    <input type="text" class="search-bar" placeholder="Search...">
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>REQUEST ID</th>
+                <th>REQUESTING OFFICE</th>
+                <th>REQUEST TYPE</th>
+                <th>DATE SUBMITTED</th>
+                <th>STATUS</th>
+                <th>ASSIGNED PERSONNEL</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>02-105</td>
+                <td>College of Sciences</td>
+                <td>Maintenance</td>
+                <td>2025-02-22</td>
+                <td><span class="status-badge status-pending">● Pending</span></td>
+                <td>John Alexis Rica</td>
+                <td><button class="action-btn">Open</button></td>
+            </tr>
+            <tr>
+                <td>02-106</td>
+                <td>College of Business and Accountancy</td>
+                <td>Electrical</td>
+                <td>2025-02-19</td>
+                <td><span class="status-badge status-approved">● Approved</span></td>
+                <td>John Chris Gaite</td>
+                <td><button class="action-btn">Open</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "gso_office/gso_base_dashboard.html" %}
+
+{% block title %}Work Accomplishment Report{% endblock %}
+
+{% block main_content %}
+<div class="header">
+    <h1 class="page-title">WORK ACCOMPLISHMENT REPORT</h1>
+    <input type="text" class="search-bar" placeholder="Search...">
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+            <th>Date Started</th>
+            <th>Date Completed</th>
+            <th>Request Type</th>
+            <th>Description</th>
+            <th>Requesting Office</th>
+            <th>Assigned Personnel</th>
+            <th>Status</th>
+            <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td>{{ report.date_started }}</td>
+                <td>{{ report.date_completed|default:"-" }}</td>
+                <td>{{ report.request_type }}</td>
+                <td>{{ report.description }}</td>
+                <td>{{ report.requesting_office }}</td>
+                <td>{{ report.assigned_personnel }}</td>
+                <td>{{ report.status }}</td>
+                <td>{{ report.rating|default:"Not Rated" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">No reports available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+</div>
+{% endblock %}

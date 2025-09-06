@@ -1,0 +1,18 @@
+{% extends "gso_office/gso_base_dashboard.html" %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block main_content %}
+<div class="header">
+    <h1 class="page-title">EDIT USER – {{ user.get_full_name }}</h1>
+</div>
+
+<div class="form-container">
+    <form method="post" class="edit-user-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <a href="{% url 'account_management' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

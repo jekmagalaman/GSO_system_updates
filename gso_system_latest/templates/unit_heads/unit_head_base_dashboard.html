@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Dashboard{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/gso_dashboard.css' %}" />
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo-section">
+        <div class="logo">
+          <img src="{% static 'images/gso_logo.png' %}" alt="General Services Office Logo">
+        </div>
+        <span style="font-weight: 600;">GSO</span>
+        <div class="hamburger">
+            <div style="width: 20px; height: 2px; background: white; margin: 3px 0;"></div>
+            <div style="width: 20px; height: 2px; background: white; margin: 3px 0;"></div>
+            <div style="width: 20px; height: 2px; background: white; margin: 3px 0;"></div>
+        </div>
+    </div>
+
+    {% url 'unit_head_request_management' as unit_head_request_management_url %}
+    {% url 'unit_head_inventory' as unit_head_inventory_url %}
+    {% url 'unit_head_request_history' as unit_head_request_history_url %}
+
+    <div class="nav-menu">
+
+        <a href="{{ unit_head_request_management_url }}" class="nav-link">
+            <div class="nav-item {% if request.path == unit_head_request_management_url %}active{% endif %}">
+                <div class="nav-icon">
+                    <img src="{% static 'images/gso_office/request_icon.png' %}" alt="Request Management">
+                </div>
+                <span>Request Management</span>
+            </div>
+        </a>
+
+        <a href="{{ unit_head_inventory_url }}" class="nav-link">
+            <div class="nav-item {% if request.path == unit_head_inventory_url %}active{% endif %}">
+                <div class="nav-icon">
+                    <img src="{% static 'images/unit_head/inventory_icon.png' %}" alt="Accomplishment Report">
+                </div>
+                <span>Inventory</span>
+            </div>
+        </a>
+
+        <a href="{{ unit_head_request_history_url }}" class="nav-link">
+            <div class="nav-item {% if request.path == unit_head_request_history_url %}active{% endif %}">
+                <div class="nav-icon">
+                    <img src="{% static 'images/unit_head/request_history.png' %}" alt="Requests History">
+                </div>
+                <span>Requests History</span>
+            </div>
+        </a>
+        
+    </div>
+
+    <div class="user-section">
+        <div class="user-avatar">
+            {{ user.first_name|default:user.username|slice:":2"|upper }}
+        </div>
+        <div class="user-info">
+            <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+            <div class="user-role">{{ user.get_role_display }}</div>
+        </div>
+    
+        <div class="logout-icon" style="margin-left: auto; cursor: pointer;">
+            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" style="background: none; border: none; color: inherit; cursor: pointer;">
+                    <img src="{% static 'images/logout.png' %}" alt="Logout">
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="main-content">
+    {% block main_content %}{% endblock %}
+</div>
+
+<script>
+    // Highlight active nav
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function () {
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Search bar filter
+    document.querySelector('.search-bar').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.table tbody tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Open action button
+    document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const row = this.closest('tr');
+            const requestId = row.cells[0].textContent;
+            alert(`Opening request ${requestId}`);
+        });
+    });
+
+    // Sidebar toggle functionality
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+    });
+
+</script>
+
+
+</body>
+</html>

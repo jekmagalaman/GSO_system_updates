@@ -1,0 +1,52 @@
+{% extends "requestor/requestor_base_dashboard.html" %}
+
+{% block title %}Request History{% endblock %}
+
+{% block main_content %}
+<main class="main-content">
+  <div class="request-container">
+    <!-- Header -->
+    <div class="request-header">
+      <h2 class="request-title">REQUEST HISTORY</h2>
+      <div class="header-actions">
+        <button class="refresh-btn">
+          <span class="icon icon-refresh"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <div class="table-header">
+        <div class="table-row">
+          <div>Job No.</div>
+          <div>Unit Name</div>
+          <div>Request Date</div>
+          <div>Status</div>
+        </div>
+      </div>
+
+      <div class="table-body">
+        {% if request_history %}
+          {% for request in request_history %}
+          <div class="table-row">
+            <div>{{ request.job_no }}</div>
+            <div>{{ request.unit_name }}</div>
+            <div>{{ request.request_date|date:"M d, Y" }}</div>
+            <div>
+              <span class="status {{ request.status|lower }}">
+                {{ request.status }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <p>No Request History Found</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

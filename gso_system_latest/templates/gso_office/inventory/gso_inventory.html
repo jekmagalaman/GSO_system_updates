@@ -1,0 +1,54 @@
+{% extends "gso_office/gso_base_dashboard.html" %}
+
+{% block title %}Account Management{% endblock %}
+
+{% block main_content %}
+<div class="header">
+    <h1 class="page-title">INVENTORY</h1>
+    <input type="text" class="search-bar" placeholder="Search...">
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>NO.</th>
+                <th>MATERIAL NAME</th>
+                <th>QUANTITY</th>
+                <th>ACTION</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td>1</td>
+                <td>John Alexis Rica</td>
+                <td>54321</td>
+                <td><button class="btn btn-sm btn-primary">Update</button></td>
+            </tr>
+
+            <tr>
+                <td>2</td>
+                <td>Kenjay Christian Abados</td>
+                <td>24153</td>
+                <td><button class="action-btn">Update</button></td>
+            </tr>
+
+            <tr>
+                <td>3</td>
+                <td>John Cris Gaite</td>
+                <td>43251</td>
+                <td><button class="action-btn">Update</button></td>
+            </tr>
+
+            <tr>
+                <td>4</td>
+                <td>Kenn Dainiel Paduga</td>
+                <td>52143</td>
+                <td><button class="action-btn">Update</button></td>
+            </tr>
+
+        </tbody>
+    </table>
+</div>
+{% endblock %}

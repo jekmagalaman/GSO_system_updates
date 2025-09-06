@@ -1,0 +1,336 @@
+{% extends "requestor/requestor_base_dashboard.html" %}
+
+{% block title %}Request Management{% endblock %}
+
+{% block main_content %}
+<style>
+    /* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background-color: hsl(0, 0%, 97%);
+    color: hsl(215, 20%, 15%);
+    line-height: 1.5;
+}
+
+.container {
+    min-height: 100vh;
+    padding: 1.5rem;
+}
+
+.profile-card {
+    max-width: 64rem;
+    margin: 0 auto;
+    background-color: hsl(0, 0%, 100%);
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 10px -3px hsl(215, 20%, 15%, 0.1);
+    padding: 2rem;
+}
+
+/* Profile Header */
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-info {
+    flex: 1;
+}
+
+.welcome-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: hsl(215, 20%, 15%);
+    margin-bottom: 1.5rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.avatar {
+    width: 3rem;
+    height: 3rem;
+    background-color: hsl(210, 40%, 96%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: hsl(215, 16%, 47%);
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 500;
+    color: hsl(215, 20%, 15%);
+}
+
+.user-department {
+    font-size: 0.875rem;
+    color: hsl(215, 16%, 47%);
+}
+
+/* Edit Button */
+.edit-btn {
+    background-color: hsl(217, 91%, 60%);
+    color: hsl(0, 0%, 100%);
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px -3px hsl(217, 91%, 60%, 0.3);
+}
+
+.edit-btn:hover {
+    background-color: hsl(217, 91%, 55%);
+    transform: scale(1.05);
+}
+
+.edit-btn:active {
+    transform: scale(0.95);
+}
+
+/* Fields Grid */
+.fields-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .fields-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Field Groups */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.field-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: hsl(215, 16%, 47%);
+}
+
+.field-display,
+.field-input {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    background-color: hsl(214, 15%, 93%);
+    color: hsl(215, 20%, 25%);
+    border-radius: 0.5rem;
+    min-height: 2.625rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.field-input {
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.field-input:focus {
+    ring: 2px solid hsl(217, 91%, 60%, 0.2);
+    box-shadow: 0 0 0 2px hsl(217, 91%, 60%, 0.2);
+}
+
+.placeholder {
+    color: hsl(215, 16%, 47%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .fields-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+    
+    .profile-card {
+        padding: 1.5rem;
+    }
+}
+
+/* Animation for smooth transitions */
+.field-display,
+.field-input {
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Focus styles for accessibility */
+.edit-btn:focus {
+    outline: 2px solid hsl(217, 91%, 60%);
+    outline-offset: 2px;
+}
+
+.field-input:focus {
+    outline: 2px solid hsl(217, 91%, 60%);
+    outline-offset: -2px;
+}
+
+</style>
+
+<div class="container">
+    <div class="profile-card">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="header-info">
+                <h1 class="welcome-text">Welcome! John Alexis</h1>
+                <div class="user-info">
+                    <div class="avatar">
+                        <svg class="user-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div class="user-details">
+                        <div class="user-name">John Alexis N. Rica</div>
+                        <div class="user-department">College of Sciences</div>
+                    </div>
+                </div>
+            </div>
+            <button class="edit-btn" id="editBtn" onclick="toggleEdit()">
+                Edit
+            </button>
+        </div>
+
+        <!-- Profile Fields Grid -->
+        <div class="fields-grid">
+            <!-- Full Name -->
+            <div class="field-group">
+                <label class="field-label">Full Name</label>
+                <div class="field-display" id="fullName-display">John Alexis N. Rica</div>
+                <input type="text" class="field-input" id="fullName-input" value="John Alexis N. Rica" style="display: none;">
+            </div>
+
+            <!-- Employee Number -->
+            <div class="field-group">
+                <label class="field-label">Employee Number</label>
+                <div class="field-display" id="employeeNumber-display">2020-8-0107</div>
+                <input type="text" class="field-input" id="employeeNumber-input" value="2020-8-0107" style="display: none;">
+            </div>
+
+            <!-- Birthday -->
+            <div class="field-group">
+                <label class="field-label">Birthday</label>
+                <div class="field-display" id="birthday-display">
+                    <span class="placeholder">MM/DD/YY</span>
+                </div>
+                <input type="text" class="field-input" id="birthday-input" value="" placeholder="MM/DD/YY" style="display: none;">
+            </div>
+
+            <!-- Office -->
+            <div class="field-group">
+                <label class="field-label">Office</label>
+                <div class="field-display" id="office-display">College of Sciences</div>
+                <input type="text" class="field-input" id="office-input" value="College of Sciences" style="display: none;">
+            </div>
+
+            <!-- Contact Number -->
+            <div class="field-group">
+                <label class="field-label">Contact Number</label>
+                <div class="field-display" id="contactNumber-display">09514372595</div>
+                <input type="text" class="field-input" id="contactNumber-input" value="09514372595" style="display: none;">
+            </div>
+
+            <!-- Position -->
+            <div class="field-group">
+                <label class="field-label">Position</label>
+                <div class="field-display" id="position-display">College Dean</div>
+                <input type="text" class="field-input" id="position-input" value="College Dean" style="display: none;">
+            </div>
+
+            <!-- Address -->
+            <div class="field-group">
+                <label class="field-label">Address</label>
+                <div class="field-display" id="address-display">Brgy. Tiniguiban PPC</div>
+                <input type="text" class="field-input" id="address-input" value="Brgy. Tiniguiban PPC" style="display: none;">
+            </div>
+
+            <!-- Email -->
+            <div class="field-group">
+                <label class="field-label">Email</label>
+                <div class="field-display" id="email-display">20208107@psu.palawan.edu.ph</div>
+                <input type="text" class="field-input" id="email-input" value="20208107@psu.palawan.edu.ph" style="display: none;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isEditing = false;
+
+    function toggleEdit() {
+        isEditing = !isEditing;
+        const editBtn = document.getElementById('editBtn');
+        const fields = ['fullName', 'employeeNumber', 'birthday', 'office', 'contactNumber', 'position', 'address', 'email'];
+
+        if (isEditing) {
+            editBtn.textContent = 'Save';
+            editBtn.classList.add('save-mode');
+            
+            fields.forEach(field => {
+                document.getElementById(`${field}-display`).style.display = 'none';
+                document.getElementById(`${field}-input`).style.display = 'flex';
+            });
+        } else {
+            editBtn.textContent = 'Edit';
+            editBtn.classList.remove('save-mode');
+            
+            fields.forEach(field => {
+                const input = document.getElementById(`${field}-input`);
+                const display = document.getElementById(`${field}-display`);
+                
+                if (input.value.trim() === '') {
+                    display.innerHTML = '<span class="placeholder">MM/DD/YY</span>';
+                } else {
+                    display.textContent = input.value;
+                }
+                
+                display.style.display = 'flex';
+                input.style.display = 'none';
+            });
+        }
+    }
+</script>
+
+{% endblock %}
+
+
+

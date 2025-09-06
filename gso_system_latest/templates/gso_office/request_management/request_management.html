@@ -1,0 +1,374 @@
+{% extends "gso_office/gso_base_dashboard.html" %}
+
+{% block title %}Account Management{% endblock %}
+
+{% block main_content %}
+<div class="header">
+    <h1 class="page-title">REQUEST MANAGEMENT</h1>
+    <input type="text" class="search-bar" placeholder="Search...">
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>REQUEST ID</th>
+                <th>REQUESTING OFFICE</th>
+                <th>REQUEST TYPE</th>
+                <th>DATE SUBMITTED</th>
+                <th>STATUS</th>
+                <th>ASSIGNED PERSONNEL</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>02-105</td>
+                <td>College of Sciences</td>
+                <td>Maintenance</td>
+                <td>2025-02-22</td>
+                <td><span class="status-badge status-pending">● Pending</span></td>
+                <td>John Alexis Rica</td>
+                <td>
+                    <button class="btn btn-sm btn-primary"
+                        onclick="openModal('02-105','College of Sciences','Maintenance','2025-02-22','Pending','John Alexis Rica')">
+                        Open
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td>02-106</td>
+                <td>College of Business and Accountancy</td>
+                <td>Electrical</td>
+                <td>2025-02-19</td>
+                <td><span class="status-badge status-approved">● Approved</span></td>
+                <td>John Chris Gaite</td>
+                <td><button class="btn btn-sm btn-primary"
+                        onclick="openModal('02-106','College of Business and Accountancy','Electrical','2025-02-19','Approved','John Chris Gaite')">
+                        Open
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div id="requestModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>REQUEST DETAILS</h2>
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+    </div>
+
+    <div class="modal-body">
+      <div class="details-grid">
+        <p><strong>REQUEST STATUS:</strong> <span id="modal-status"></span></p>
+        <p><strong>REQUEST ID:</strong> <span id="modal-request-id"></span></p>
+        <p><strong>REQUEST TYPE:</strong> <span id="modal-type"></span></p>
+        <p><strong>DATE:</strong> <span id="modal-date"></span></p>
+        <p><strong>REQUESTING OFFICE:</strong> <span id="modal-office"></span></p>
+        <p><strong>REQUESTER NAME:</strong> <span id="modal-requester"></span></p>
+        <p><strong>CONTACT #:</strong> <span id="modal-contact"></span></p>
+        <p><strong>PROBLEM DESCRIPTION:</strong> <span id="modal-description"></span></p>
+      </div>
+
+      <!-- Materials and Labor Table -->
+      <h3 class="section-title">MATERIALS AND LABOR</h3>
+      <table class="materials-table">
+        <thead>
+          <tr>
+            <th>Materials/Description</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+            <th>Assigned Personnel</th>
+          </tr>
+        </thead>
+        <tbody id="materials-body">
+          <tr>
+            <td colspan="4" style="text-align:center; color:#6b7280;">No materials added</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Dates and Remarks -->
+      <div class="dates">
+        <p><strong>DATE STARTED:</strong> <span id="modal-start"></span></p>
+        <p><strong>DATE FINISH:</strong> <span id="modal-finish"></span></p>
+      </div>
+      <div class="remarks">
+        <p><strong>REMARKS:</strong></p>
+        <textarea id="modal-remarks" rows="3" readonly></textarea>
+      </div>
+    </div>
+
+    <!-- Footer Buttons -->
+    <div class="modal-footer">
+      <button class="approve-btn">APPROVE</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Overlay */
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Modal box */
+.modal-content {
+  background: #fff;
+  border-radius: 8px;
+  width: 700px;
+  max-width: 95%;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+/* Header */
+.modal-header {
+  background: #0d47a1;
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.close-btn {
+  cursor: pointer;
+  font-size: 22px;
+  color: #fff;
+  transition: 0.2s;
+}
+.close-btn:hover {
+  color: #ff6b6b;
+}
+
+/* Body */
+.modal-body {
+  padding: 16px;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+/* Two-column grid */
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 20px;
+  margin-bottom: 16px;
+}
+.details-grid p {
+  margin: 4px 0;
+}
+
+/* Section Title */
+.section-title {
+  background: #0d47a1;
+  color: #fff;
+  font-size: 14px;
+  padding: 6px 10px;
+  margin: 12px 0 6px;
+}
+
+/* Table */
+.materials-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+.materials-table th, 
+.materials-table td {
+  border: 1px solid #d1d5db;
+  padding: 8px;
+  text-align: center;
+  font-size: 13px;
+}
+.materials-table th {
+  background: #f3f4f6;
+  font-weight: bold;
+}
+
+/* Dates and remarks */
+.dates {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.remarks textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 6px;
+  font-size: 13px;
+  resize: none;
+  background: #f9fafb;
+}
+
+/* Footer */
+.modal-footer {
+  padding: 12px 16px;
+  text-align: right;
+  background: #f9fafb;
+}
+.approve-btn {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.approve-btn:hover {
+  background: #16a34a;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Responsive Modal */
+.modal-content {
+  background: #fff;
+  border-radius: 8px;
+  width: 700px;            /* default for desktop */
+  max-width: 95%;          /* prevents overflow */
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Grid layout for details */
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 columns desktop */
+  gap: 8px 20px;
+  margin-bottom: 16px;
+}
+
+/* Table responsiveness */
+.materials-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+  display: block;   /* makes table scrollable on mobile */
+  white-space: nowrap;
+}
+
+/* Breakpoints */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;  /* shrink modal for tablets */
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr; /* stack details on smaller screens */
+  }
+
+  .dates {
+    flex-direction: column; /* stack start/finish dates */
+    gap: 6px;
+  }
+
+  .approve-btn {
+    width: 100%; /* full-width button for easier tapping */
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-header h2 {
+    font-size: 1rem; /* smaller title on very small devices */
+  }
+
+  .modal-body {
+    font-size: 13px;
+  }
+
+  .close-btn {
+    font-size: 18px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+</style>
+
+
+<script>
+function openModal(id, office, type, date, status, requester, contact, description, materials, start, finish, remarks) {
+    // Basic details
+    document.getElementById("modal-request-id").textContent = id;
+    document.getElementById("modal-office").textContent = office;
+    document.getElementById("modal-type").textContent = type;
+    document.getElementById("modal-date").textContent = date;
+    document.getElementById("modal-status").textContent = status;
+    document.getElementById("modal-requester").textContent = requester;
+    document.getElementById("modal-contact").textContent = contact;
+    document.getElementById("modal-description").textContent = description;
+
+    // Materials & Labor table
+    let tbody = document.getElementById("materials-body");
+    tbody.innerHTML = ""; // clear existing
+    if (materials && materials.length > 0) {
+        materials.forEach(item => {
+            let row = `<tr>
+                <td>${item.description}</td>
+                <td>${item.quantity}</td>
+                <td>${item.unit}</td>
+                <td>${item.personnel}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    } else {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#6b7280;">No materials added</td></tr>`;
+    }
+
+    // Dates & remarks
+    document.getElementById("modal-start").textContent = start;
+    document.getElementById("modal-finish").textContent = finish;
+    document.getElementById("modal-remarks").value = remarks;
+
+    // Show modal
+    document.getElementById("requestModal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("requestModal").style.display = "none";
+}
+</script>
+
+{% endblock %}
