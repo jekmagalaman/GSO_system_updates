@@ -3,9 +3,29 @@
 {% block title %}Account Management{% endblock %}
 
 {% block main_content %}
-<div class="header">
+<div class="header d-flex align-items-center justify-content-between">
     <h1 class="page-title">INVENTORY</h1>
-    <input type="text" class="search-bar" placeholder="Search...">
+
+    <form method="get" class="d-flex gap-2">
+        <!-- Search -->
+        <input 
+            type="text" 
+            name="user_status" 
+            class="form-control form-control-sm" 
+            placeholder="Search materials..." 
+            value="{{ request.GET.user_status }}"
+        >
+    
+        <!-- Status Filter -->
+        <select name="unit" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="">All Units</option>
+            {% for u in units %}
+                <option value="{{ u.id }}" {% if request.GET.unit == u.id|stringformat:"s" %}selected{% endif %}>
+                    {{ u.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
 </div>
 
 <div class="table-container">
@@ -31,21 +51,21 @@
                 <td>2</td>
                 <td>Kenjay Christian Abados</td>
                 <td>24153</td>
-                <td><button class="action-btn">Update</button></td>
+                <td><button class="btn btn-sm btn-primary">Update</button></td>
             </tr>
 
             <tr>
                 <td>3</td>
                 <td>John Cris Gaite</td>
                 <td>43251</td>
-                <td><button class="action-btn">Update</button></td>
+                <td><button class="btn btn-sm btn-primary">Update</button></td>
             </tr>
 
             <tr>
                 <td>4</td>
                 <td>Kenn Dainiel Paduga</td>
                 <td>52143</td>
-                <td><button class="action-btn">Update</button></td>
+                <td><button class="btn btn-sm btn-primary">Update</button></td>
             </tr>
 
         </tbody>

@@ -20,18 +20,55 @@ body {
 
 
 
+/* Collapsed sidebar (desktop slim) */
+.sidebar.collapsed {
+  width: 70px;
+  transition: width 0.3s ease;
+  overflow-x: hidden;
+}
 
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .user-info,
+.sidebar.collapsed .logo-section span,
+.sidebar.collapsed .logo,
+.sidebar.collapsed .logout-icon {
+  display: none;
+}
+
+
+.sidebar.collapsed .hamburger {
+  margin: 0 auto; /* keep hamburger centered */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Default sidebar */
 .sidebar {
-    width: 250px;
-    background: linear-gradient(180deg, #091e58 0%, #001e72 100%);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    height: 100vh;
-    left: 0;
-    top: 0;
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
+  width: 250px;
+  background: linear-gradient(180deg, #091e58 0%, #001e72 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
+  transition: width 0.3s ease, transform 0.3s ease;
 }
 
 .logo-section {
@@ -54,11 +91,6 @@ body {
     color: #1e3a8a;
 }
 
-.hamburger {
-    margin-left: auto;
-    cursor: pointer;
-    padding: 5px;
-}
 
 .nav-menu {
     flex: 1;
@@ -165,11 +197,26 @@ body {
 
 
 
+/* Main content shift */
 .main-content {
     flex: 1;
     margin-left: 250px;
     padding: 30px;
+    transition: margin-left 0.3s ease;
+    }
+
+
+.sidebar.collapsed ~ .main-content {
+  margin-left: 70px;
 }
+
+@media (max-width: 768px) {
+    .main-content {
+      margin-left: 0;
+    }
+  }
+
+
 
 .header {
     margin-bottom: 30px;
@@ -307,11 +354,13 @@ body {
 
 
 .hamburger {
+    margin-left: auto;
+    cursor: pointer;
+    padding: 5px;
     display: flex;
     flex-direction: column;
     cursor: pointer;
     padding: 5px;
-    margin-left: auto;
 }
 
 .hamburger .bar {
@@ -325,13 +374,9 @@ body {
 
 
 
+/* Hidden sidebar (mobile slide out) */
 .sidebar.hidden {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-}
-
-.sidebar {
-    transition: transform 0.3s ease;
+  transform: translateX(-100%);
 }
 
 

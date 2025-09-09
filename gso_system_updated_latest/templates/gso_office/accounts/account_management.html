@@ -6,23 +6,27 @@
 <div class="header d-flex align-items-center justify-content-between">
     <h1 class="page-title">ACCOUNT MANAGEMENT</h1>
 
-    <div class="d-flex gap-2">
+    <form method="get" class="d-flex gap-2">
         <!-- Search -->
-        <input type="text" class="form-control form-control-sm" placeholder="Search...">
-
-        <!-- Filter Dropdown -->
-        <form method="get">
-            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                <option value="">All Status</option>
-                <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
-                <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
-            </select>
-        </form>
-    </div>
+        <input 
+            type="text" 
+            name="user_status" 
+            class="form-control form-control-sm" 
+            placeholder="Search..." 
+            value="{{ request.GET.user_status }}"
+        >
+    
+        <!-- Status Filter -->
+        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="">All Status</option>
+            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+    </form>
 </div>
 
 
-<div class="table-container">
+<div class="table-container table-responsive">
     <table class="table">
         <thead>
             <tr>
@@ -40,27 +44,25 @@
                 <td>{{ forloop.counter }}</td>
                 <td>{{ user.get_full_name }}</td>
                 <td>{{ user.get_role_display }}</td>
-                <td>{{ user.unit }}</td>
-
+                <td>{{ user.get_unit_display }}</td>
                 <td>
                     {% if user.is_active %}
-                      <span class="badge bg-success">Active</span>
+                        <span class="badge bg-success">Active</span>
                     {% else %}
-                      <span class="badge bg-danger">Inactive</span>
+                        <span class="badge bg-danger">Inactive</span>
                     {% endif %}
                 </td>
-
                 <td>
                     <a href="{% url 'edit_user' user.id %}" class="btn btn-sm btn-primary">Edit</a>
                 </td>
-
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5">No users found.</td>
+                <td colspan="6">No users found.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
 {% endblock %}

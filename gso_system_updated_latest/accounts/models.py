@@ -11,6 +11,7 @@ class User(AbstractUser):
 
     UNIT_CHOICES = [
         ('admin', 'Admin'),
+        ('requestor', 'Requestor'),
         ('maintenance', 'Maintenance'),
         ('electrical', 'Electrical'),
         ('utilities', 'Utilities'),

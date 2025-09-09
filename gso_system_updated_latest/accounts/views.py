@@ -31,10 +31,22 @@ User = get_user_model()
 def account_view(request):
     users = User.objects.all()
 
-    # Filtering by role
+    # Filtering by status (active/inactive)
     status_filter = request.GET.get('status')
     if status_filter:
         users = users.filter(is_active=(status_filter == 'active'))
+
+
+    #search functionality
+    search_query = request.GET.get('user_status')
+    if search_query:
+        users = users.filter(
+            first_name__icontains=search_query
+        ) | users.filter(
+            last_name__icontains=search_query
+        ) | users.filter(
+            username__icontains=search_query
+        )
 
 
     return render(request, 'gso_office/accounts/account_management.html', {'users': users})

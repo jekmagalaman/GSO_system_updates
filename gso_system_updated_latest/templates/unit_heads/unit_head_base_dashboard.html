@@ -22,15 +22,14 @@
         </div>
     </div>
 
-    {% url 'request_management' as request_management_url %}
-    {% url 'accomplishment_report' as accomplishment_report_url %}
-    {% url 'gso_inventory' as gso_inventory_url %}
-    {% url 'account_management' as account_management_url %}
+    {% url 'unit_head_request_management' as unit_head_request_management_url %}
+    {% url 'unit_head_inventory' as unit_head_inventory_url %}
+    {% url 'unit_head_request_history' as unit_head_request_history_url %}
 
     <div class="nav-menu">
 
-        <a href="{{ request_management_url }}" class="nav-link">
-            <div class="nav-item {% if request.path == request_management_url %}active{% endif %}">
+        <a href="{{ unit_head_request_management_url }}" class="nav-link">
+            <div class="nav-item {% if request.path == unit_head_request_management_url %}active{% endif %}">
                 <div class="nav-icon">
                     <img src="{% static 'images/gso_office/request_icon.png' %}" alt="Request Management">
                 </div>
@@ -38,33 +37,24 @@
             </div>
         </a>
 
-        <a href="{{ accomplishment_report_url }}" class="nav-link">
-            <div class="nav-item {% if request.path == accomplishment_report_url %}active{% endif %}">
+        <a href="{{ unit_head_inventory_url }}" class="nav-link">
+            <div class="nav-item {% if request.path == unit_head_inventory_url %}active{% endif %}">
                 <div class="nav-icon">
-                    <img src="{% static 'images/gso_office/report_icon.png' %}" alt="Accomplishment Report">
-                </div>
-                <span>Accomplishment Report</span>
-            </div>
-        </a>
-
-        <a href="{{ gso_inventory_url }}" class="nav-link">
-            <div class="nav-item {% if request.path == gso_inventory_url %}active{% endif %}">
-                <div class="nav-icon">
-                    <img src="{% static 'images/unit_head/inventory_icon.png' %}" alt="Inventory">
+                    <img src="{% static 'images/unit_head/inventory_icon.png' %}" alt="Accomplishment Report">
                 </div>
                 <span>Inventory</span>
             </div>
         </a>
 
-        <a href="{{ account_management_url }}" class="nav-link">
-            <div class="nav-item {% if request.path == account_management_url %}active{% endif %}">
+        <a href="{{ unit_head_request_history_url }}" class="nav-link">
+            <div class="nav-item {% if request.path == unit_head_request_history_url %}active{% endif %}">
                 <div class="nav-icon">
-                    <img src="{% static 'images/gso_office/account_icon.png' %}" alt="Account Management">
+                    <img src="{% static 'images/unit_head/request_history.png' %}" alt="Requests History">
                 </div>
-                <span>Account Management</span>
+                <span>Requests History</span>
             </div>
         </a>
-
+        
     </div>
 
     <div class="user-section">
@@ -91,7 +81,7 @@
     {% block main_content %}{% endblock %}
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+<script>
     // Highlight active nav
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', function () {
@@ -129,6 +119,7 @@
     });
 
 </script>
+
 
 </body>
 </html>
