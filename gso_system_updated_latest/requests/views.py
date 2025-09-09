@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import get_user_model
+from .models import ServiceRequest
 
 #GSO Office Views
 def is_gso(user):
@@ -8,11 +9,19 @@ def is_gso(user):
 
 @login_required
 @user_passes_test(is_gso)
+
 def request_management(request):
+    requests = ServiceRequest.objects.select_related("requestor").all().order_by("-created_at")
+
     context = {
-        'user_role': request.user.role  
+        "user_role": request.user.role,
+        "requests": requests,
     }
-    return render(request, 'gso_office/request_management/request_management.html')
+    return render(request, "gso_office/request_management/request_management.html", context)
+
+
+
+
 
 
 

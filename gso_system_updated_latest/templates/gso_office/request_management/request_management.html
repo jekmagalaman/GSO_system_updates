@@ -29,44 +29,43 @@
     <table class="table">
         <thead>
             <tr>
-                <th>REQUEST ID</th>
+                <th>DATE</th>
                 <th>REQUESTING OFFICE</th>
-                <th>REQUEST TYPE</th>
-                <th>DATE SUBMITTED</th>
+                <th>UNIT</th>
+                <th>DESCRIPTION</th>
                 <th>STATUS</th>
-                <th>ASSIGNED PERSONNEL</th>
                 <th>ACTIONS</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td>02-105</td>
-                <td>College of Sciences</td>
-                <td>Maintenance</td>
-                <td>2025-02-22</td>
-                <td><span class="status-badge status-pending">● Pending</span></td>
-                <td>John Alexis Rica</td>
-                <td>
-                    <button class="btn btn-sm btn-primary"
-                        onclick="openModal('02-105','College of Sciences','Maintenance','2025-02-22','Pending','John Alexis Rica')">
-                        Open
-                    </button>
-                </td>
-            </tr>
 
-            <tr>
-                <td>02-106</td>
-                <td>College of Business and Accountancy</td>
-                <td>Electrical</td>
-                <td>2025-02-19</td>
-                <td><span class="status-badge status-approved">● Approved</span></td>
-                <td>John Chris Gaite</td>
-                <td><button class="btn btn-sm btn-primary"
-                        onclick="openModal('02-106','College of Business and Accountancy','Electrical','2025-02-19','Approved','John Chris Gaite')">
-                        Open
-                    </button>
-                </td>
-            </tr>
+        <tbody>
+          {% for req in requests %}
+          <tr>
+            <td>{{ req.created_at|date:"Y-m-d" }}</td>
+            <td>{{ req.requestor.get_full_name|default:req.requestor.username }}</td>
+            <td>{{ req.get_unit_display }}</td>
+            <td>{{ req.description }}</td>
+            <td>
+              {% if req.status == "Pending" %}
+                <span class="status-badge status-pending">● Pending</span>
+              {% elif req.status == "Approved" %}
+                <span class="status-badge status-approved">● Approved</span>
+              {% else %}
+                <span class="status-badge">{{ req.status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <button class="btn btn-sm btn-primary"
+                onclick="openModal('{{ req.id }}','{{ req.requestor.get_full_name|default:req.requestor.username|escapejs }}','{{ req.get_unit_display }}','{{ req.created_at|date:'Y-m-d' }}','{{ req.status }}','{{ req.description|escapejs }}')">
+                Open
+              </button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center">No requests found.</td>
+          </tr>
+          {% endfor %}
         </tbody>
     </table>
 </div>
@@ -81,42 +80,11 @@
 
     <div class="modal-body">
       <div class="details-grid">
-        <p><strong>REQUEST STATUS:</strong> <span id="modal-status"></span></p>
-        <p><strong>REQUEST ID:</strong> <span id="modal-request-id"></span></p>
-        <p><strong>REQUEST TYPE:</strong> <span id="modal-type"></span></p>
         <p><strong>DATE:</strong> <span id="modal-date"></span></p>
         <p><strong>REQUESTING OFFICE:</strong> <span id="modal-office"></span></p>
-        <p><strong>REQUESTER NAME:</strong> <span id="modal-requester"></span></p>
-        <p><strong>CONTACT #:</strong> <span id="modal-contact"></span></p>
-        <p><strong>PROBLEM DESCRIPTION:</strong> <span id="modal-description"></span></p>
-      </div>
-
-      <!-- Materials and Labor Table -->
-      <h3 class="section-title">MATERIALS AND LABOR</h3>
-      <table class="materials-table">
-        <thead>
-          <tr>
-            <th>Materials/Description</th>
-            <th>Quantity</th>
-            <th>Unit</th>
-            <th>Assigned Personnel</th>
-          </tr>
-        </thead>
-        <tbody id="materials-body">
-          <tr>
-            <td colspan="4" style="text-align:center; color:#6b7280;">No materials added</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Dates and Remarks -->
-      <div class="dates">
-        <p><strong>DATE STARTED:</strong> <span id="modal-start"></span></p>
-        <p><strong>DATE FINISH:</strong> <span id="modal-finish"></span></p>
-      </div>
-      <div class="remarks">
-        <p><strong>REMARKS:</strong></p>
-        <textarea id="modal-remarks" rows="3" readonly></textarea>
+        <p><strong>UNIT:</strong> <span id="modal-unit"></span></p>
+        <p><strong>DESCRIPTION:</strong> <span id="modal-description"></span></p>
+        <p><strong>STATUS:</strong> <span id="modal-status"></span></p>
       </div>
     </div>
 
@@ -346,46 +314,22 @@
 
 
 <script>
-function openModal(id, office, type, date, status, requester, contact, description, materials, start, finish, remarks) {
-    // Basic details
-    document.getElementById("modal-request-id").textContent = id;
-    document.getElementById("modal-office").textContent = office;
-    document.getElementById("modal-type").textContent = type;
-    document.getElementById("modal-date").textContent = date;
-    document.getElementById("modal-status").textContent = status;
-    document.getElementById("modal-requester").textContent = requester;
-    document.getElementById("modal-contact").textContent = contact;
-    document.getElementById("modal-description").textContent = description;
-
-    // Materials & Labor table
-    let tbody = document.getElementById("materials-body");
-    tbody.innerHTML = ""; // clear existing
-    if (materials && materials.length > 0) {
-        materials.forEach(item => {
-            let row = `<tr>
-                <td>${item.description}</td>
-                <td>${item.quantity}</td>
-                <td>${item.unit}</td>
-                <td>${item.personnel}</td>
-            </tr>`;
-            tbody.innerHTML += row;
-        });
-    } else {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#6b7280;">No materials added</td></tr>`;
-    }
-
-    // Dates & remarks
-    document.getElementById("modal-start").textContent = start;
-    document.getElementById("modal-finish").textContent = finish;
-    document.getElementById("modal-remarks").value = remarks;
-
-    // Show modal
-    document.getElementById("requestModal").style.display = "flex";
-}
-
-function closeModal() {
-    document.getElementById("requestModal").style.display = "none";
-}
+  function openModal(date, office, unit, description, status) {
+      // Fill modal details
+      document.getElementById("modal-date").textContent = date;
+      document.getElementById("modal-office").textContent = office;
+      document.getElementById("modal-unit").textContent = unit;
+      document.getElementById("modal-description").textContent = description;
+      document.getElementById("modal-status").textContent = status;
+  
+      // Show modal
+      document.getElementById("requestModal").style.display = "flex";
+  }
+  
+  function closeModal() {
+      document.getElementById("requestModal").style.display = "none";
+  }
 </script>
+  
 
 {% endblock %}
