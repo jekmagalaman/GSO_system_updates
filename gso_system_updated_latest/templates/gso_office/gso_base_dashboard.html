@@ -33,7 +33,7 @@
     <div class="nav-menu">
 
         <a href="{{ request_management_url }}" class="nav-link">
-            <div class="nav-item {% if request.path == request_management_url %}active{% endif %}">
+            <div class="nav-item {% if request.path == request_management_url or request.path == '/requests/gso/' %}active{% endif %}">
                 <div class="nav-icon">
                     <img src="{% static 'images/gso_office/request_icon.png' %}" alt="Request Management">
                 </div>
@@ -97,50 +97,41 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    // Highlight active nav
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', function () {
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            this.classList.add('active');
-        });
+    const sidebar = document.getElementById("sidebar");
+    const hamburger = document.getElementById("sidebarToggle");
+
+    // Hamburger click
+    hamburger.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+            // Mobile → slide in/out
+            sidebar.classList.toggle("show");
+        } else {
+            // Desktop → collapse
+            sidebar.classList.toggle("collapsed");
+        }
     });
 
-    // Search bar filter (only if exists)
-    const searchBar = document.querySelector('.search-bar');
-    if (searchBar) {
-        searchBar.addEventListener('input', function (e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('.table tbody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        });
+    // Auto-collapse / adjust on window resize
+    function handleResize() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.remove("collapsed");
+            sidebar.classList.remove("show"); // hide by default
+        } else if (window.innerWidth <= 1024) {
+            sidebar.classList.add("collapsed");
+            sidebar.classList.remove("show");
+        } else {
+            sidebar.classList.remove("collapsed");
+            sidebar.classList.remove("show");
+        }
     }
 
-    // Action buttons (only if exist)
-    document.querySelectorAll('.action-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const row = this.closest('tr');
-            const requestId = row.cells[0].textContent;
-            alert(`Opening request ${requestId}`);
-        });
-    });
-
-    // Sidebar toggle
-    const sidebar = document.querySelector('.sidebar');
-    const hamburger = document.querySelector('.hamburger');
-
-    if (hamburger) {
-        hamburger.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('hidden');   // mobile slide-out
-            } else {
-                sidebar.classList.toggle('collapsed'); // desktop slim mode
-            }
-        });
-    }
+    handleResize();
+    window.addEventListener("resize", handleResize);
 });
+
+
+
+
 </script>
 
 

@@ -382,3 +382,58 @@ body {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Mobile mode (<= 768px) */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -250px;  /* hidden off-screen */
+    top: 0;
+    height: 100%;
+    width: 250px;
+    background: #1f2937; /* dark gray example */
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+
+  .sidebar.show {
+    left: 0; /* slide in */
+  }
+
+  .main-content {
+    margin-left: 0; /* take full width */
+  }
+}

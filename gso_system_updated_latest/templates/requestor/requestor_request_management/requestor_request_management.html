@@ -28,44 +28,34 @@
           </tr>
         </thead>
         <tbody>
+          {% for req in requests %}
           <tr>
-            <td>001</td>
-            <td>Maintenance</td>
-            <td>2025-09-03</td>
-            <td><span class="status-badge status-pending">● Pending</span></td>
+            <td>{{ req.id }}</td>
+            <td>{{ req.get_unit_display }}</td>
+            <td>{{ req.created_at|date:"Y-m-d" }}</td>
             <td>
-                <button class="btn btn-sm btn-primary"
-                    onclick="openModal('001','Maintenance','2025-09-03','Pending')">
-                    View
-                </button>
+              {% if req.status == "Pending" %}
+                <span class="status-badge status-pending">● Pending</span>
+              {% elif req.status == "In Progress" %}
+                <span class="status-badge status-inprogress">● In Progress</span>
+              {% elif req.status == "Completed" %}
+                <span class="status-badge status-completed">● Completed</span>
+              {% else %}
+                <span class="status-badge">{{ req.status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <button class="btn btn-sm btn-primary"
+                onclick="openModal('{{ req.id }}','{{ req.get_unit_display }}','{{ req.created_at|date:'Y-m-d' }}','{{ req.status }}','{{ req.description|escapejs }}')">
+                View
+              </button>
             </td>
           </tr>
-
+          {% empty %}
           <tr>
-            <td>002</td>
-            <td>Electrical</td>
-            <td>2025-09-02</td>
-            <td><span class="status-badge status-completed">● Completed</span></td>
-            <td>
-                <button class="btn btn-sm btn-primary"
-                    onclick="openModal('002','Electrical','2025-09-02','Completed')">
-                    View
-                </button>
-            </td>
+            <td colspan="5" class="text-center">No requests found.</td>
           </tr>
-
-          <tr>
-            <td>003</td>
-            <td>Motorpool</td>
-            <td>2025-09-01</td>
-            <td><span class="status-badge status-inprogress">● In Progress</span></td>
-            <td>
-                <button class="btn btn-sm btn-primary"
-                    onclick="openModal('003','Motorpool','2025-09-01','In Progress')">
-                    View
-                </button>
-            </td>
-          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
@@ -81,7 +71,7 @@
       <span class="close-btn" id="closeModal">&times;</span>
     </div>
     <div class="modal-options">
-      <button class="modal-option" data-unit="Repair and Maintenance">Repair and Maintenance</button>
+      <button class="modal-option" data-unit="Repair and Maintenance">Maintenance</button>
       <button class="modal-option" data-unit="Utility">Utility</button>
       <button class="modal-option" data-unit="Electrical">Electrical</button>
       <button class="modal-option" data-unit="Motorpool">Motorpool</button>
@@ -100,82 +90,91 @@
       <button class="modal2-close-btn" onclick="closeModal2()">&times;</button>
     </div>
 
-    <!-- Content -->
-    <div class="modal2-body">
-      <!-- Category Selection -->
-      <div class="modal2-category-section">
-        <label class="modal2-category-label">PLEASE CHECK THE APPROPRIATE BOX</label>
-        <div class="modal2-checkbox-group">
-          <div class="modal2-checkbox-item">
-            <input type="checkbox" id="labor">
-            <label for="labor">LABOR</label>
-          </div>
-          <div class="modal2-checkbox-item">
-            <input type="checkbox" id="materials">
-            <label for="materials">MATERIALS</label>
-          </div>
-          <div class="modal2-checkbox-item">
-            <input type="checkbox" id="others">
-            <label for="others">OTHERS</label>
-          </div>
-        </div>
-      </div>
+    <!-- FORM START -->
+    <form method="POST" action="{% url 'add_request' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="modal2-body">
 
-      <!-- Requestor Information -->
-      <div class="modal2-section">
-        <h3 class="modal2-section-title">Requestor Information</h3>
-        <div class="modal2-grid">
-          <div class="modal2-group">
-            <label class="modal2-label">Last Name*</label>
-            <input type="text" class="modal2-input" name="last_name" required>
-          </div>
-          <div class="modal2-group">
-            <label class="modal2-label">First Name*</label>
-            <input type="text" class="modal2-input" name="first_name" required>
-          </div>
-          <div class="modal2-group">
-            <label class="modal2-label">Middle Initial</label>
-            <input type="text" class="modal2-input" name="middle_name" required>
-          </div>
-        </div>
-        <div class="modal2-grid">
-          <div class="modal2-group">
-            <label class="modal2-label">Department/Office*</label>
-            <input type="text" class="modal2-input" name="department" required>
-          </div>
-          <div class="modal2-group">
-            <label class="modal2-label">Email Address*</label>
-            <input type="email" class="modal2-input" name="email" required>
-          </div>
-          <div class="modal2-group">
-            <label class="modal2-label">Contact Number*</label>
-            <input type="tel" class="modal2-input" name="contact_number" required>
-          </div>
-        </div>
-      </div>
+        <!-- Category Selection -->
+        <div class="modal2-category-section">
+          <label class="modal2-category-label">PLEASE CHECK THE APPROPRIATE BOX</label>
+          <div class="modal2-checkbox-group">
+            <div class="modal2-checkbox-item">
 
-      <!-- Requestor Details -->
-      <div class="modal2-section">
-        <h3 class="modal2-section-title">Requestor Details</h3>
-        <div class="modal2-group">
-          <label class="modal2-label">Detailed Description of Request*</label>
-          <textarea class="modal2-textarea" readonly></textarea>
+              <input type="hidden" name="unit" id="selectedUnit">
+
+              <input type="checkbox" name="labor" id="labor" value="1">
+              <label for="labor">LABOR</label>
+            </div>
+            <div class="modal2-checkbox-item">
+              <input type="checkbox" name="materials" id="materials" value="1">
+              <label for="materials">MATERIALS</label>
+            </div>
+            <div class="modal2-checkbox-item">
+              <input type="checkbox" name="others" id="others" value="1">
+              <label for="others">OTHERS</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requestor Information -->
+        <div class="modal2-section">
+          <h3 class="modal2-section-title">Requestor Information</h3>
+          <div class="modal2-grid">
+            <div class="modal2-group">
+              <label class="modal2-label">Last Name*</label>
+              <input type="text" class="modal2-input" name="last_name" required>
+            </div>
+            <div class="modal2-group">
+              <label class="modal2-label">First Name*</label>
+              <input type="text" class="modal2-input" name="first_name" required>
+            </div>
+            <div class="modal2-group">
+              <label class="modal2-label">Middle Initial</label>
+              <input type="text" class="modal2-input" name="middle_name">
+            </div>
+          </div>
+          <div class="modal2-grid">
+            <div class="modal2-group">
+              <label class="modal2-label">Department/Office*</label>
+              <input type="text" class="modal2-input" name="department" required>
+            </div>
+            <div class="modal2-group">
+              <label class="modal2-label">Email Address*</label>
+              <input type="email" class="modal2-input" name="email" required>
+            </div>
+            <div class="modal2-group">
+              <label class="modal2-label">Contact Number*</label>
+              <input type="tel" class="modal2-input" name="contact_number" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requestor Details -->
+        <div class="modal2-section">
+          <h3 class="modal2-section-title">Requestor Details</h3>
+          <div class="modal2-group">
+            <label class="modal2-label">Detailed Description of Request*</label>
+            <textarea class="modal2-textarea" name="description" required></textarea>
+          </div>
+        </div>
+
+        <!-- Attachments -->
+        <div class="modal2-attachments">
+          <label class="modal2-label">Attachments*</label>
+          <div class="modal2-attachment-area">
+            <input type="file" name="attachment" accept="image/*">
+          </div>
+        </div>
+
+        <!-- Confirm Button -->
+        <div class="modal2-confirm">
+          <button type="submit" class="modal2-confirm-btn">Submit Request</button>
         </div>
       </div>
+    </form>
+    <!-- FORM END -->
 
-      <!-- Attachments -->
-      <div class="modal2-attachments">
-        <label class="modal2-label">Attachments*</label>
-        <div class="modal2-attachment-area">
-          <button class="modal2-view-btn">View Uploaded Image</button>
-        </div>
-      </div>
-
-      <!-- Confirm Button -->
-      <div class="modal2-confirm">
-        <button class="modal2-confirm-btn" onclick="confirmRequest()">Confirm</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -221,6 +220,24 @@
     closeModal2();
   }
 
+
+
+// Open Modal 2 when choosing request type
+document.querySelectorAll(".modal-option").forEach(option => {
+  option.addEventListener("click", () => {
+    const unit = option.getAttribute("data-unit");
+
+    // Update modal title
+    formTitle.textContent = unit + " Request Details";
+
+    // ✅ Set hidden input value
+    document.getElementById("selectedUnit").value = unit;
+
+    // Switch modals
+    modal.style.display = "none";
+    formModal2.style.display = "flex";
+  });
+});
   
 </script>
 

@@ -23,6 +23,8 @@ urlpatterns = [
     #Requestor URLs
     path('requestor/', views.requestor_request_management, name='employee-dashboard'),
     path('requestor/requestor-request-management/', views.requestor_request_management, name='requestor_request_management'),
-    path('requestor/requestor-request-history/', views.requestor_request_history, name='requestor_request_history')
+    path('requestor/requestor-request-history/', views.requestor_request_history, name='requestor_request_history'),
+
+    path("requests/add/", views.add_request, name="add_request"),
 
 ]

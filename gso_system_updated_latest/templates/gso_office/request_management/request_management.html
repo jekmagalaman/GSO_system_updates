@@ -16,12 +16,15 @@
           value="{{ request.GET.user_status }}"
       >
   
-      <!-- Status Filter -->
-      <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-          <option value="">All Status</option>
-          <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
-          <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+      <!-- Unit Filter -->
+      <select name="unit" class="form-select form-select-sm" onchange="this.form.submit()">
+        <option value="">All Units</option>
+        <option value="maintenance" {% if request.GET.unit == 'maintenance' %}selected{% endif %}>Maintenance</option>
+        <option value="utility" {% if request.GET.unit == 'utility' %}selected{% endif %}>Utility</option>
+        <option value="electrical" {% if request.GET.unit == 'electrical' %}selected{% endif %}>Electrical</option>
+        <option value="motorpool" {% if request.GET.unit == 'motorpool' %}selected{% endif %}>Motorpool</option>
       </select>
+      
   </form>
 </div>
 
