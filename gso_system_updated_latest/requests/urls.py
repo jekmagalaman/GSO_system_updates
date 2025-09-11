@@ -7,6 +7,8 @@ urlpatterns = [
     path('gso/', views.request_management, name='gso-dashboard'),
     path('gso/request-management', views.request_management, name='request_management'),
 
+    path("requests/<int:pk>/approve/", views.approve_request, name="approve_request"),
+
 
     #Unit Head URLs
     path('unit-head/', views.unit_head_request_management, name='unit-head-dashboard'),

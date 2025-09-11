@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import get_user_model
+from django.views.decorators.http import require_POST
 from .models import ServiceRequest
 
 #GSO Office Views
@@ -11,6 +12,15 @@ def is_gso(user):
 
 @login_required
 @user_passes_test(is_gso)
+@require_POST
+def approve_request(request, pk):
+    service_request = get_object_or_404(ServiceRequest, pk=pk)
+    service_request.status = "Approved"
+    service_request.save()
+    return redirect("request_management")  # back to the request management page
+
+
+@login_required
 def request_management(request):
     # Base queryset
     requests_qs = ServiceRequest.objects.select_related("requestor").all().order_by("-created_at")

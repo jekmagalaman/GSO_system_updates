@@ -32,6 +32,7 @@
     <table class="table">
         <thead>
             <tr>
+                <th>REQUEST ID</th>
                 <th>DATE</th>
                 <th>REQUESTING OFFICE</th>
                 <th>UNIT</th>
@@ -44,6 +45,7 @@
         <tbody>
           {% for req in requests %}
           <tr>
+            <td>{{ req.id }}</td>
             <td>{{ req.created_at|date:"Y-m-d" }}</td>
             <td>{{ req.requestor.get_full_name|default:req.requestor.username }}</td>
             <td>{{ req.get_unit_display }}</td>
@@ -59,8 +61,8 @@
             </td>
             <td>
               <button class="btn btn-sm btn-primary"
-                onclick="openModal('{{ req.id }}','{{ req.requestor.get_full_name|default:req.requestor.username|escapejs }}','{{ req.get_unit_display }}','{{ req.created_at|date:'Y-m-d' }}','{{ req.status }}','{{ req.description|escapejs }}')">
-                Open
+                onclick="openModal('{{ req.id }}', '{{ req.created_at|date:"Y-m-d" }}', '{{ req.requestor.department }}', '{{ req.get_unit_display }}', '{{ req.description|escapejs }}', '{{ req.status }}')">
+                View
               </button>
             </td>
           </tr>
@@ -93,8 +95,12 @@
 
     <!-- Footer Buttons -->
     <div class="modal-footer">
-      <button class="approve-btn">APPROVE</button>
+      <form id="approveForm" method="POST" action="">
+        {% csrf_token %}
+        <button type="submit" class="approve-btn">APPROVE</button>
+      </form>
     </div>
+
   </div>
 </div>
 
@@ -317,20 +323,18 @@
 
 
 <script>
-  function openModal(date, office, unit, description, status) {
-      // Fill modal details
+  function openModal(id, date, office, unit, description, status) {
       document.getElementById("modal-date").textContent = date;
       document.getElementById("modal-office").textContent = office;
       document.getElementById("modal-unit").textContent = unit;
       document.getElementById("modal-description").textContent = description;
       document.getElementById("modal-status").textContent = status;
-  
-      // Show modal
+
+      // safer: Django generates the URL template
+      const approveForm = document.getElementById("approveForm");
+      approveForm.action = "{% url 'approve_request' 0 %}".replace("0", id);
+
       document.getElementById("requestModal").style.display = "flex";
-  }
-  
-  function closeModal() {
-      document.getElementById("requestModal").style.display = "none";
   }
 </script>
   
