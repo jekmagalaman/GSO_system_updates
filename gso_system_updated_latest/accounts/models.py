@@ -24,6 +24,6 @@ class User(AbstractUser):
     ]
 
 
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    account_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     unit = models.CharField(max_length=50, choices=UNIT_CHOICES, default='unassigned')

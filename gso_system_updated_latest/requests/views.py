@@ -53,11 +53,51 @@ def request_management(request):
 #Unit Head Views
 @login_required
 def unit_head_request_management(request):
-    return render(request, "unit_heads/unit_head_request_management/unit_head_request_management.html")
+    # Get the unit of the logged-in Unit Head
+    unit = request.user.unit  
+
+    # Base queryset: requests only for this unit
+    requests_qs = ServiceRequest.objects.select_related("requestor").filter(unit=unit).order_by("-created_at")
+
+    # Optional search filter
+    search_query = request.GET.get("user_status")
+    if search_query:
+        requests_qs = requests_qs.filter(
+            requestor__username__icontains=search_query
+        )
+
+    # Optional status filter (if needed later)
+    status_filter = request.GET.get("status")
+    if status_filter:
+        requests_qs = requests_qs.filter(status=status_filter)
+
+    context = {
+        "requests": requests_qs,
+    }
+    return render(request, "unit_heads/unit_head_request_management/unit_head_request_management.html", context)
+
+
+
+
 
 @login_required
 def unit_head_request_history(request):
     return render(request, 'unit_heads/unit_head_request_history/unit_head_request_history.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

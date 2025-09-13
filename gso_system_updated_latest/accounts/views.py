@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from .forms import UserEditForm
+from .forms import UserEditForm, RequestorProfileUpdate
 
 User = get_user_model()
 
@@ -72,3 +72,15 @@ def edit_user(request, user_id):
 @login_required
 def requestor_account(request):
     return render(request, 'requestor/requestor_account/requestor_account.html')
+
+@login_required
+def profile(request):
+    if request.method == "POST":
+        form = RequestorProfileUpdate(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect("requestor_account")  # reload page with updated info
+    else:
+        form = RequestorProfileUpdate(instance=request.user)
+
+    return render(request, "requestor/account.html", {"form": form})

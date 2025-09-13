@@ -7,72 +7,69 @@
   <h1 class="page-title">REQUEST MANAGEMENT</h1>
 
   <form method="get" class="d-flex gap-2">
-      <!-- Search -->
-      <input 
-          type="text" 
-          name="user_status" 
-          class="form-control form-control-sm" 
-          placeholder="Search..." 
-          value="{{ request.GET.user_status }}"
-      >
-  
-      <!-- Unit Filter -->
-      <select name="unit" class="form-select form-select-sm" onchange="this.form.submit()">
-        <option value="">All Units</option>
-        <option value="maintenance" {% if request.GET.unit == 'maintenance' %}selected{% endif %}>Maintenance</option>
-        <option value="utility" {% if request.GET.unit == 'utility' %}selected{% endif %}>Utility</option>
-        <option value="electrical" {% if request.GET.unit == 'electrical' %}selected{% endif %}>Electrical</option>
-        <option value="motorpool" {% if request.GET.unit == 'motorpool' %}selected{% endif %}>Motorpool</option>
-      </select>
-      
+    <!-- Search -->
+    <input 
+      type="text" 
+      name="user_status" 
+      class="form-control form-control-sm" 
+      placeholder="Search..." 
+      value="{{ request.GET.user_status }}"
+    >
+    <!-- Unit Filter -->
+    <select name="unit" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">All Units</option>
+      <option value="maintenance" {% if request.GET.unit == 'maintenance' %}selected{% endif %}>Maintenance</option>
+      <option value="utility" {% if request.GET.unit == 'utility' %}selected{% endif %}>Utility</option>
+      <option value="electrical" {% if request.GET.unit == 'electrical' %}selected{% endif %}>Electrical</option>
+      <option value="motorpool" {% if request.GET.unit == 'motorpool' %}selected{% endif %}>Motorpool</option>
+    </select>
   </form>
 </div>
 
 <div class="table-container table-responsive">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>REQUEST ID</th>
-                <th>DATE</th>
-                <th>REQUESTING OFFICE</th>
-                <th>UNIT</th>
-                <th>DESCRIPTION</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
-            </tr>
-        </thead>
-
-        <tbody>
-          {% for req in requests %}
-          <tr>
-            <td>{{ req.id }}</td>
-            <td>{{ req.created_at|date:"Y-m-d" }}</td>
-            <td>{{ req.requestor.get_full_name|default:req.requestor.username }}</td>
-            <td>{{ req.get_unit_display }}</td>
-            <td>{{ req.description }}</td>
-            <td>
-              {% if req.status == "Pending" %}
-                <span class="status-badge status-pending">● Pending</span>
-              {% elif req.status == "Approved" %}
-                <span class="status-badge status-approved">● Approved</span>
-              {% else %}
-                <span class="status-badge">{{ req.status }}</span>
-              {% endif %}
-            </td>
-            <td>
-              <button class="btn btn-sm btn-primary"
-                onclick="openModal('{{ req.id }}', '{{ req.created_at|date:"Y-m-d" }}', '{{ req.requestor.department }}', '{{ req.get_unit_display }}', '{{ req.description|escapejs }}', '{{ req.status }}')">
-                View
-              </button>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="6" class="text-center">No requests found.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-    </table>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>REQUEST ID</th>
+        <th>DATE</th>
+        <th>REQUESTING OFFICE</th>
+        <th>UNIT</th>
+        <th>ASSIGNED PERSONNEL</th>
+        <th>STATUS</th>
+        <th>ACTIONS</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in requests %}
+      <tr>
+        <td>{{ req.id }}</td>
+        <td>{{ req.created_at|date:"Y-m-d" }}</td>
+        <td>{{ req.requestor.get_full_name|default:req.requestor.username }}</td>
+        <td>{{ req.get_unit_display }}</td>
+        <td>{{ req.assigned_personnel.get_full_name|default:"Unassigned" }}</td>
+        <td>
+          {% if req.status == "Pending" %}
+            <span class="status-badge status-pending">● Pending</span>
+          {% elif req.status == "Approved" %}
+            <span class="status-badge status-approved">● Approved</span>
+          {% else %}
+            <span class="status-badge">{{ req.status }}</span>
+          {% endif %}
+        </td>
+        <td>
+          <button class="btn btn-sm btn-primary"
+            onclick="openModal('{{ req.id }}', '{{ req.created_at|date:"Y-m-d" }}', '{{ req.requestor.department }}', '{{ req.get_unit_display }}', '{{ req.description|escapejs }}', '{{ req.status }}')">
+            View
+          </button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" class="text-center">No requests found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 
 <!-- Modal -->
@@ -93,14 +90,12 @@
       </div>
     </div>
 
-    <!-- Footer Buttons -->
     <div class="modal-footer">
       <form id="approveForm" method="POST" action="">
         {% csrf_token %}
         <button type="submit" class="approve-btn">APPROVE</button>
       </form>
     </div>
-
   </div>
 </div>
 
@@ -125,6 +120,8 @@
   max-width: 95%;
   box-shadow: 0 6px 20px rgba(0,0,0,0.2);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
@@ -136,12 +133,10 @@
   justify-content: space-between;
   align-items: center;
 }
-
 .modal-header h2 {
   margin: 0;
   font-size: 1.2rem;
 }
-
 .close-btn {
   cursor: pointer;
   font-size: 22px;
@@ -184,6 +179,9 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 16px;
+  overflow-x: auto;
+  display: block;
+  white-space: nowrap;
 }
 .materials-table th, 
 .materials-table td {
@@ -233,110 +231,50 @@
   background: #16a34a;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Responsive Modal */
-.modal-content {
-  background: #fff;
-  border-radius: 8px;
-  width: 700px;            /* default for desktop */
-  max-width: 95%;          /* prevents overflow */
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Grid layout for details */
-.details-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* 2 columns desktop */
-  gap: 8px 20px;
-  margin-bottom: 16px;
-}
-
-/* Table responsiveness */
-.materials-table {
-  width: 100%;
-  border-collapse: collapse;
-  overflow-x: auto;
-  display: block;   /* makes table scrollable on mobile */
-  white-space: nowrap;
-}
-
-/* Breakpoints */
+/* Responsive */
 @media (max-width: 768px) {
   .modal-content {
-    width: 95%;  /* shrink modal for tablets */
+    width: 95%;
   }
-
   .details-grid {
-    grid-template-columns: 1fr; /* stack details on smaller screens */
+    grid-template-columns: 1fr;
   }
-
   .dates {
-    flex-direction: column; /* stack start/finish dates */
+    flex-direction: column;
     gap: 6px;
   }
-
   .approve-btn {
-    width: 100%; /* full-width button for easier tapping */
+    width: 100%;
   }
 }
-
 @media (max-width: 480px) {
   .modal-header h2 {
-    font-size: 1rem; /* smaller title on very small devices */
+    font-size: 1rem;
   }
-
   .modal-body {
     font-size: 13px;
   }
-
   .close-btn {
     font-size: 18px;
   }
 }
-
-
-
-
-
-
-
-
-
-
 </style>
 
-
 <script>
-  function openModal(id, date, office, unit, description, status) {
-      document.getElementById("modal-date").textContent = date;
-      document.getElementById("modal-office").textContent = office;
-      document.getElementById("modal-unit").textContent = unit;
-      document.getElementById("modal-description").textContent = description;
-      document.getElementById("modal-status").textContent = status;
+function openModal(id, date, office, unit, description, status) {
+  document.getElementById("modal-date").textContent = date;
+  document.getElementById("modal-office").textContent = office;
+  document.getElementById("modal-unit").textContent = unit;
+  document.getElementById("modal-description").textContent = description;
+  document.getElementById("modal-status").textContent = status;
 
-      // safer: Django generates the URL template
-      const approveForm = document.getElementById("approveForm");
-      approveForm.action = "{% url 'approve_request' 0 %}".replace("0", id);
+  const approveForm = document.getElementById("approveForm");
+  approveForm.action = "{% url 'approve_request' 0 %}".replace("0", id);
 
-      document.getElementById("requestModal").style.display = "flex";
-  }
+  document.getElementById("requestModal").style.display = "flex";
+}
+function closeModal() {
+  document.getElementById("requestModal").style.display = "none";
+}
 </script>
-  
-
 {% endblock %}

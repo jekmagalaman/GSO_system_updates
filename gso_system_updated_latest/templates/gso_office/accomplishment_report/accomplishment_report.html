@@ -3,10 +3,29 @@
 {% block title %}Work Accomplishment Report{% endblock %}
 
 {% block main_content %}
-<div class="header">
+<div class="header d-flex align-items-center justify-content-between">
     <h1 class="page-title">WORK ACCOMPLISHMENT REPORT</h1>
-    <input type="text" class="search-bar" placeholder="Search...">
-</div>
+  
+    <form method="get" class="d-flex gap-2">
+        <!-- Search -->
+        <input 
+            type="text" 
+            name="user_status" 
+            class="form-control form-control-sm" 
+            placeholder="Search..." 
+            value="{{ request.GET.user_status }}"
+        >
+    
+        <!-- Unit Filter -->
+        <select name="unit" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="">All Units</option>
+          <option value="maintenance" {% if request.GET.unit == 'maintenance' %}selected{% endif %}>Maintenance</option>
+          <option value="utility" {% if request.GET.unit == 'utility' %}selected{% endif %}>Utility</option>
+          <option value="electrical" {% if request.GET.unit == 'electrical' %}selected{% endif %}>Electrical</option>
+          <option value="motorpool" {% if request.GET.unit == 'motorpool' %}selected{% endif %}>Motorpool</option>
+        </select>
+    </form>
+  </div>
 
 <div class="table-container">
     <table class="table">
@@ -42,4 +61,5 @@
         </tbody>
         </table>
 </div>
+
 {% endblock %}

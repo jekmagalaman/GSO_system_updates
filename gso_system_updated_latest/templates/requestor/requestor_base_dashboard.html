@@ -44,7 +44,8 @@
 
     <aside class="sidebar">
         <nav class="nav-menu">
-          <a href="{{ requestor_request_management_url }}" class="nav-item {% if request.path == requestor_request_management_url %}active{% endif %}">
+          <a href="{{ requestor_request_management_url }}" 
+            class="nav-item {% if request.path == requestor_request_management_url or request.path == '/requests/requestor/' %}active{% endif %}">
             <div class="nav-item-left">
               <span class="icon icon-file nav-icon"></span>
               <span>Request Management</span>

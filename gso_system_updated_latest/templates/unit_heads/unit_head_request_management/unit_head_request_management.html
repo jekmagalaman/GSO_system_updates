@@ -3,9 +3,27 @@
 {% block title %}Request Management{% endblock %}
 
 {% block main_content %}
-<div class="header">
-    <h1 class="page-title">REQUEST MANAGEMENT</h1>
-    <input type="text" class="search-bar" placeholder="Search...">
+<div class="header d-flex align-items-center justify-content-between">
+  <h1 class="page-title">REQUEST MANAGEMENT</h1>
+
+  <form method="get" class="d-flex gap-2">
+    <!-- Search -->
+    <input 
+      type="text" 
+      name="user_status" 
+      class="form-control form-control-sm" 
+      placeholder="Search..." 
+      value="{{ request.GET.user_status }}"
+    >
+    <!-- Unit Filter -->
+    <select name="unit" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">All Units</option>
+      <option value="maintenance" {% if request.GET.unit == 'maintenance' %}selected{% endif %}>Maintenance</option>
+      <option value="utility" {% if request.GET.unit == 'utility' %}selected{% endif %}>Utility</option>
+      <option value="electrical" {% if request.GET.unit == 'electrical' %}selected{% endif %}>Electrical</option>
+      <option value="motorpool" {% if request.GET.unit == 'motorpool' %}selected{% endif %}>Motorpool</option>
+    </select>
+  </form>
 </div>
 
 <div class="table-container table-responsive">
@@ -22,24 +40,31 @@
             </tr>
         </thead>
         <tbody>
+            {% for req in requests %}
             <tr>
-                <td>02-105</td>
-                <td>College of Sciences</td>
-                <td>Maintenance</td>
-                <td>2025-02-22</td>
-                <td><span class="status-badge status-pending">● Pending</span></td>
-                <td>John Alexis Rica</td>
-                <td><button class="btn btn-sm btn-primary">Open</button></td>
+                <td>{{ req.id }}</td>
+                <td>{{ req.requestor.get_full_name|default:req.requestor.username }}</td>
+                <td>{{ req.get_unit_display }}</td>
+                <td>{{ req.created_at|date:"Y-m-d" }}</td>
+                <td>
+                {% if req.status == "Pending" %}
+                    <span class="status-badge status-pending">● Pending</span>
+                {% elif req.status == "Approved" %}
+                    <span class="status-badge status-approved">● Approved</span>
+                {% else %}
+                    <span class="status-badge">{{ req.status }}</span>
+                {% endif %}
+                </td>
+                <td>{{ req.assigned_personnel.get_full_name|default:"Unassigned" }}</td>
+                <td>
+                <button class="btn btn-sm btn-primary">Open</button>
+                </td>
             </tr>
+            {% empty %}
             <tr>
-                <td>02-106</td>
-                <td>College of Business and Accountancy</td>
-                <td>Electrical</td>
-                <td>2025-02-19</td>
-                <td><span class="status-badge status-approved">● Approved</span></td>
-                <td>John Chris Gaite</td>
-                <td><button class="btn btn-sm btn-primary">Open</button></td>
+                <td colspan="7" class="text-center">No requests found for your unit.</td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
