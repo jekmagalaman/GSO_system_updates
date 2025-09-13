@@ -2,14 +2,21 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import get_user_model
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 from .models import ServiceRequest
 
-#GSO Office Views
+# --- Role checks ---
 def is_gso(user):
-    return user.is_authenticated and user.role == 'gso'
+    return user.is_authenticated and user.role == "gso"
+
+def is_unit_head(user):
+    return user.is_authenticated and user.role == "unit_head"
+
+def is_requestor(user):
+    return user.is_authenticated and user.role == "employee"  # adjust if needed
 
 
-
+# --- GSO Office Views ---
 @login_required
 @user_passes_test(is_gso)
 @require_POST
@@ -17,19 +24,21 @@ def approve_request(request, pk):
     service_request = get_object_or_404(ServiceRequest, pk=pk)
     service_request.status = "Approved"
     service_request.save()
-    return redirect("request_management")  # back to the request management page
+    return redirect("request_management")
 
 
 @login_required
+@user_passes_test(is_gso)
 def request_management(request):
-    # Base queryset
     requests_qs = ServiceRequest.objects.select_related("requestor").all().order_by("-created_at")
 
-    # Search filter (optional, based on your input name)
+    # Search filter
     search_query = request.GET.get("user_status")
     if search_query:
         requests_qs = requests_qs.filter(
-            requestor__username__icontains=search_query
+            Q(requestor__username__icontains=search_query) |
+            Q(requestor__first_name__icontains=search_query) |
+            Q(requestor__last_name__icontains=search_query)
         )
 
     # Unit filter
@@ -44,29 +53,23 @@ def request_management(request):
     return render(request, "gso_office/request_management/request_management.html", context)
 
 
-
-
-
-
-
-
-#Unit Head Views
+# --- Unit Head Views ---
 @login_required
+@user_passes_test(is_unit_head)
 def unit_head_request_management(request):
-    # Get the unit of the logged-in Unit Head
-    unit = request.user.unit  
-
-    # Base queryset: requests only for this unit
+    unit = request.user.unit
     requests_qs = ServiceRequest.objects.select_related("requestor").filter(unit=unit).order_by("-created_at")
 
-    # Optional search filter
+    # Search filter
     search_query = request.GET.get("user_status")
     if search_query:
         requests_qs = requests_qs.filter(
-            requestor__username__icontains=search_query
+            Q(requestor__username__icontains=search_query) |
+            Q(requestor__first_name__icontains=search_query) |
+            Q(requestor__last_name__icontains=search_query)
         )
 
-    # Optional status filter (if needed later)
+    # Status filter
     status_filter = request.GET.get("status")
     if status_filter:
         requests_qs = requests_qs.filter(status=status_filter)
@@ -77,71 +80,45 @@ def unit_head_request_management(request):
     return render(request, "unit_heads/unit_head_request_management/unit_head_request_management.html", context)
 
 
-
-
-
 @login_required
+@user_passes_test(is_unit_head)
 def unit_head_request_history(request):
-    return render(request, 'unit_heads/unit_head_request_history/unit_head_request_history.html')
+    return render(request, "unit_heads/unit_head_request_history/unit_head_request_history.html")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#Personnel Views
+# --- Personnel Views ---
 @login_required
 def personnel_task_management(request):
-    return render(request, 'personnel/personnel_task_management/personnel_task_management.html')
+    return render(request, "personnel/personnel_task_management/personnel_task_management.html")
 
 @login_required
 def personnel_history(request):
-    return render(request, 'personnel/personnel_history/personnel_history.html')
+    return render(request, "personnel/personnel_history/personnel_history.html")
 
 
-
-
-
-
-
-#Requestor Views
+# --- Requestor Views ---
 @login_required
+@user_passes_test(is_requestor)
 def requestor_request_management(request):
-    requests = ServiceRequest.objects.filter(requestor=request.user).order_by("-created_at")
-
-    return render(request, 'requestor/requestor_request_management/requestor_request_management.html', {"requests":requests})
+    requests_qs = ServiceRequest.objects.filter(requestor=request.user).order_by("-created_at")
+    return render(request, "requestor/requestor_request_management/requestor_request_management.html", {"requests": requests_qs})
 
 
 @login_required
+@user_passes_test(is_requestor)
 def add_request(request):
     if request.method == "POST":
         ServiceRequest.objects.create(
             requestor=request.user,
-            unit=request.POST.get("unit"),  # you should pass selected unit from Modal 1
+            unit=request.POST.get("unit"),
             description=request.POST.get("description"),
             status="Pending",
         )
-        return redirect("requestor_request_management")  # redirect to their list page
+        return redirect("requestor_request_management")
     return redirect("requestor_request_management")
 
 
-
-
-
-
-
 @login_required
+@user_passes_test(is_requestor)
 def requestor_request_history(request):
-    return render(request, 'requestor/requestor_request_history/requestor_request_history.html')
+    return render(request, "requestor/requestor_request_history/requestor_request_history.html")
