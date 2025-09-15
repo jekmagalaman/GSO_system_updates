@@ -5,6 +5,12 @@ from django.views.decorators.http import require_POST
 from django.db.models import Q
 from .models import ServiceRequest
 
+from accounts.models import User
+
+
+
+
+
 # --- Role checks ---
 def is_gso(user):
     return user.is_authenticated and user.role == "gso"
@@ -14,6 +20,11 @@ def is_unit_head(user):
 
 def is_requestor(user):
     return user.is_authenticated and user.role == "employee"  # adjust if needed
+
+
+
+
+
 
 
 # --- GSO Office Views ---
@@ -53,6 +64,17 @@ def request_management(request):
     return render(request, "gso_office/request_management/request_management.html", context)
 
 
+
+
+
+
+
+
+
+
+
+
+
 # --- Unit Head Views ---
 @login_required
 @user_passes_test(is_unit_head)
@@ -80,20 +102,110 @@ def unit_head_request_management(request):
     return render(request, "unit_heads/unit_head_request_management/unit_head_request_management.html", context)
 
 
+
+@login_required
+def request_detail_assign(request, pk):
+    req = get_object_or_404(ServiceRequest, id=pk)
+
+    # Get only personnel under the same unit
+    personnel = User.objects.filter(role="personnel", unit=req.unit)
+
+    if request.method == "POST":
+        personnel_id = request.POST.get("personnel_id")
+        if personnel_id:
+            selected_personnel = get_object_or_404(User, id=personnel_id)
+            req.assigned_personnel = selected_personnel
+            # ❌ Do NOT touch req.status here
+            req.save()
+        return redirect("unit_head_request_management")
+
+    return render(request, "unit_heads/unit_head_request_management/request_detail.html", {
+        "req": req,
+        "personnel": personnel
+    })
+
+
+
+
+
+
+
 @login_required
 @user_passes_test(is_unit_head)
 def unit_head_request_history(request):
     return render(request, "unit_heads/unit_head_request_history/unit_head_request_history.html")
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 # --- Personnel Views ---
 @login_required
 def personnel_task_management(request):
-    return render(request, "personnel/personnel_task_management/personnel_task_management.html")
+    # Get tasks assigned to the logged-in personnel
+    tasks = ServiceRequest.objects.filter(assigned_personnel=request.user)
+
+    # Optional filters
+    search_query = request.GET.get("user_status")
+    status_filter = request.GET.get("status")   # <- change from unit to status
+
+    if search_query:
+        tasks = tasks.filter(requesting_office__icontains=search_query)
+
+    if status_filter:
+        tasks = tasks.filter(status=status_filter)   # <- filter by status now
+
+    return render(
+        request,
+        "personnel/personnel_task_management/personnel_task_management.html",
+        {"tasks": tasks}
+    )
+
+
+
+@login_required
+def personnel_task_detail(request, pk):
+    task = get_object_or_404(ServiceRequest, pk=pk, assigned_personnel=request.user)
+    return render(
+        request,
+        "personnel/personnel_task_management/personnel_task_detail.html",
+        {"task": task}
+    )
+
+
 
 @login_required
 def personnel_history(request):
-    return render(request, "personnel/personnel_history/personnel_history.html")
+    # Only completed tasks for this personnel
+    history = ServiceRequest.objects.filter(
+        assigned_personnel=request.user,
+        status="Completed"
+    ).order_by("-created_at")  # use created_at instead of date_submitted
+
+    return render(
+        request,
+        "personnel/personnel_history/personnel_history.html",
+        {"history": history}
+    )
+
+
+
+
+
+
+
+
+
+
 
 
 # --- Requestor Views ---

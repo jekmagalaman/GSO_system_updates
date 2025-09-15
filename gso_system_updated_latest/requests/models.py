@@ -19,3 +19,15 @@ class ServiceRequest(models.Model):
     description = models.TextField()
     status = models.CharField(default='Pending', max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    
+    assigned_personnel = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_requests'
+    )
+
+    def __str__(self):
+        return f"Request #{self.id} - {self.get_unit_display()}"

@@ -1,0 +1,35 @@
+{% extends "unit_heads/unit_head_base_dashboard.html" %}
+
+{% block title %}Request #{{ req.id }}{% endblock %}
+
+{% block main_content %}
+<div class="container mt-4">
+  <h2>Request Details</h2>
+  <ul class="list-group mb-3">
+    <li class="list-group-item"><strong>Request ID:</strong> {{ req.id }}</li>
+    <li class="list-group-item"><strong>Requesting Office:</strong> {{ req.requestor.get_full_name|default:req.requestor.username }}</li>
+    <li class="list-group-item"><strong>Type:</strong> {{ req.get_unit_display }}</li>
+    <li class="list-group-item"><strong>Date Submitted:</strong> {{ req.created_at|date:"Y-m-d H:i" }}</li>
+    <li class="list-group-item"><strong>Status:</strong> {{ req.status }}</li>
+    <li class="list-group-item"><strong>Assigned Personnel:</strong> {{ req.assigned_personnel.get_full_name|default:"Unassigned" }}</li>
+  </ul>
+
+  <h4>Assign Personnel</h4>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="personnel_id" class="form-label">Select Personnel</label>
+      <select name="personnel_id" id="personnel_id" class="form-select">
+        <option value="">-- Choose Personnel --</option>
+        {% for p in personnel %}
+          <option value="{{ p.id }}" {% if req.assigned_personnel and req.assigned_personnel.id == p.id %}selected{% endif %}>
+            {{ p.get_full_name|default:p.username }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-success">Assign</button>
+    <a href="{% url 'unit_head_request_management' %}" class="btn btn-secondary">Back</a>
+  </form>
+</div>
+{% endblock %}

@@ -57,7 +57,9 @@
                 </td>
                 <td>{{ req.assigned_personnel.get_full_name|default:"Unassigned" }}</td>
                 <td>
-                <button class="btn btn-sm btn-primary">Open</button>
+                    <a href="{% url 'request_detail_assign' req.id %}" class="btn btn-sm btn-primary">
+                        Open
+                    </a>
                 </td>
             </tr>
             {% empty %}
@@ -68,4 +70,8 @@
         </tbody>
     </table>
 </div>
+
+
+
+
 {% endblock %}

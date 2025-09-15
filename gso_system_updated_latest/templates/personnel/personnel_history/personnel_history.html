@@ -9,38 +9,43 @@
 </div>
 
 <div class="table-container">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>REQUEST ID</th>
-                <th>REQUESTING OFFICE</th>
-                <th>REQUEST TYPE</th>
-                <th>DATE SUBMITTED</th>
-                <th>STATUS</th>
-                <th>ASSIGNED PERSONNEL</th>
-                <th>ACTIONS</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>02-105</td>
-                <td>College of Sciences</td>
-                <td>Maintenance</td>
-                <td>2025-02-22</td>
-                <td><span class="status-badge status-pending">● Pending</span></td>
-                <td>John Alexis Rica</td>
-                <td><button class="action-btn">Open</button></td>
-            </tr>
-            <tr>
-                <td>02-106</td>
-                <td>College of Business and Accountancy</td>
-                <td>Electrical</td>
-                <td>2025-02-19</td>
-                <td><span class="status-badge status-approved">● Approved</span></td>
-                <td>John Chris Gaite</td>
-                <td><button class="action-btn">Open</button></td>
-            </tr>
-        </tbody>
-    </table>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>REQUEST ID</th>
+        <th>REQUESTING OFFICE</th>
+        <th>REQUEST TYPE</th>
+        <th>DATE SUBMITTED</th>
+        <th>DATE COMPLETED</th>
+        <th>STATUS</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in history %}
+      <tr>
+        <td>{{ task.request_id }}</td>
+        <td>{{ task.requesting_office }}</td>
+        <td>{{ task.unit|title }}</td>
+        <td>{{ task.created_at|date:"Y-m-d" }}</td>
+        <td>
+        {% if task.date_completed %}
+            {{ task.date_completed|date:"Y-m-d" }}
+        {% else %}
+            N/A
+        {% endif %}
+        </td>
+        <td>
+          <span class="status-badge status-{{ task.status|lower }}">
+            ● {{ task.status }}
+          </span>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="text-center">No completed tasks yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}

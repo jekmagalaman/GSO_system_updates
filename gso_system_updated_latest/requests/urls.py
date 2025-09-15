@@ -15,11 +15,17 @@ urlpatterns = [
     path('unit-head/unit-head-request-management/', views.unit_head_request_management, name='unit_head_request_management'),
     path('unit-head/unit-head-request_history/', views.unit_head_request_history, name='unit_head_request_history'),
 
+    path("unit-head/requests/<int:pk>/", views.request_detail_assign, name="request_detail_assign"),
+
+
+
 
     #Personnel URLs
     path('personnel/', views.personnel_task_management, name='personnel-dashboard'),
     path('personnel/personnel-task-management/', views.personnel_task_management, name='personnel_task_management'),
+    path("tasks/<int:pk>/", views.personnel_task_detail, name="personnel_task_detail"),
     path('personnel/personnel-history/', views.personnel_history, name='personnel_history'),
+
 
 
     #Requestor URLs

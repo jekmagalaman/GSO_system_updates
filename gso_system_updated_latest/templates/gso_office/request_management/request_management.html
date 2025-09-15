@@ -58,7 +58,15 @@
         </td>
         <td>
           <button class="btn btn-sm btn-primary"
-            onclick="openModal('{{ req.id }}', '{{ req.created_at|date:"Y-m-d" }}', '{{ req.requestor.department }}', '{{ req.get_unit_display }}', '{{ req.description|escapejs }}', '{{ req.status }}')">
+            onclick="openModal(
+              '{{ req.id }}',
+              '{{ req.created_at|date:"Y-m-d" }}',
+              '{{ req.requestor.department }}',
+              '{{ req.get_unit_display }}',
+              '{{ req.description|escapejs }}',
+              '{{ req.status }}',
+              '{{ req.assigned_personnel.get_full_name|default:"" }}'
+            )">
             View
           </button>
         </td>
@@ -86,6 +94,7 @@
         <p><strong>REQUESTING OFFICE:</strong> <span id="modal-office"></span></p>
         <p><strong>UNIT:</strong> <span id="modal-unit"></span></p>
         <p><strong>DESCRIPTION:</strong> <span id="modal-description"></span></p>
+        <p><strong>ASSIGNED PERSONNEL:</strong> <span id="modal-personnel"></span></p>
         <p><strong>STATUS:</strong> <span id="modal-status"></span></p>
       </div>
     </div>
@@ -261,18 +270,27 @@
 </style>
 
 <script>
-function openModal(id, date, office, unit, description, status) {
+function openModal(id, date, office, unit, description, status, personnel) {
   document.getElementById("modal-date").textContent = date;
   document.getElementById("modal-office").textContent = office;
   document.getElementById("modal-unit").textContent = unit;
   document.getElementById("modal-description").textContent = description;
   document.getElementById("modal-status").textContent = status;
+  document.getElementById("modal-personnel").textContent = personnel || "Unassigned";
 
   const approveForm = document.getElementById("approveForm");
   approveForm.action = "{% url 'approve_request' 0 %}".replace("0", id);
 
+  // Only show approve button if personnel is assigned
+  if (personnel && personnel.trim() !== "") {
+    approveForm.style.display = "block";
+  } else {
+    approveForm.style.display = "none";
+  }
+
   document.getElementById("requestModal").style.display = "flex";
 }
+
 function closeModal() {
   document.getElementById("requestModal").style.display = "none";
 }

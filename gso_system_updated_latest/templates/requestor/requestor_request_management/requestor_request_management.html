@@ -45,7 +45,7 @@
             </td>
             <td>
               <button class="btn btn-sm btn-primary"
-                onclick="openModal('{{ req.id }}','{{ req.get_unit_display }}','{{ req.created_at|date:'Y-m-d' }}','{{ req.status }}','{{ req.description|escapejs }}')">
+                onclick="openModal('{{ req.id }}','{{ req.get_unit_display }}','{{ req.created_at|date:'Y-m-d' }}','{{ req.status }}','{{ req.description|escapejs }}','{{ req.assigned_personnel.get_full_name|default:"Unassigned" }}')">
                 View
               </button>
             </td>
@@ -150,6 +150,7 @@
       <p><strong>Unit:</strong> <span id="view-unit"></span></p>
       <p><strong>Date:</strong> <span id="view-date"></span></p>
       <p><strong>Status:</strong> <span id="view-status"></span></p>
+      <p><strong>Assigned Personnel:</strong> <span id="view-personnel"></span></p>
       <p><strong>Description:</strong></p>
       <p id="view-description"></p>
     </div>
@@ -187,12 +188,13 @@
   }
 
   // Modal 3 (View)
-  function openModal(id, unit, date, status, description) {
+  function openModal(id, unit, date, status, description, personnel) {
     document.getElementById("view-id").textContent = id;
     document.getElementById("view-unit").textContent = unit;
     document.getElementById("view-date").textContent = date;
     document.getElementById("view-status").textContent = status;
     document.getElementById("view-description").textContent = description;
+    document.getElementById("view-personnel").textContent = personnel;
     document.getElementById("viewRequestModal").style.display = "flex";
   }
 
