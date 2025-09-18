@@ -24,6 +24,7 @@
             <th>Action</th>
           </tr>
         </thead>
+
         <tbody>
           {% for req in requests %}
           <tr>
@@ -39,13 +40,16 @@
                 <span class="status-badge status-inprogress">● In Progress</span>
               {% elif req.status == "Completed" %}
                 <span class="status-badge status-completed">● Completed</span>
+              {% elif req.status == "Cancelled" %}
+                <span class="status-badge status-cancelled">● Cancelled</span>
               {% else %}
                 <span class="status-badge">{{ req.status }}</span>
               {% endif %}
             </td>
             <td>
+              <!-- View Button only -->
               <button class="btn btn-sm btn-primary"
-                onclick="openModal('{{ req.id }}','{{ req.get_unit_display }}','{{ req.created_at|date:'Y-m-d' }}','{{ req.status }}','{{ req.description|escapejs }}','{{ req.assigned_personnel.get_full_name|default:"Unassigned" }}')">
+                onclick="openModal('{{ req.id }}','{{ req.get_unit_display }}','{{ req.created_at|date:'Y-m-d' }}','{{ req.status }}','{{ req.description|escapejs }}','{{ req.assigned_personnel.get_full_name|default:'Unassigned' }}')">
                 View
               </button>
             </td>
@@ -56,6 +60,7 @@
           </tr>
           {% endfor %}
         </tbody>
+
       </table>
     </div>
   </div>
@@ -138,6 +143,9 @@
   </div>
 </div>
 
+
+
+
 <!-- Modal 3: View Request Details -->
 <div id="viewRequestModal" class="modal" style="display:none;">
   <div class="modal-content">
@@ -154,8 +162,15 @@
       <p><strong>Description:</strong></p>
       <p id="view-description"></p>
     </div>
+
+    <div class="modal-footer" id="modal-footer-actions">
+      <!-- Cancel button will be dynamically inserted here -->
+    </div>
   </div>
 </div>
+
+
+
 
 <script>
   // Modal 1
@@ -189,13 +204,31 @@
 
   // Modal 3 (View)
   function openModal(id, unit, date, status, description, personnel) {
-    document.getElementById("view-id").textContent = id;
-    document.getElementById("view-unit").textContent = unit;
-    document.getElementById("view-date").textContent = date;
-    document.getElementById("view-status").textContent = status;
-    document.getElementById("view-description").textContent = description;
-    document.getElementById("view-personnel").textContent = personnel;
-    document.getElementById("viewRequestModal").style.display = "flex";
+  document.getElementById("view-id").textContent = id;
+  document.getElementById("view-unit").textContent = unit;
+  document.getElementById("view-date").textContent = date;
+  document.getElementById("view-status").textContent = status;
+  document.getElementById("view-description").textContent = description;
+  document.getElementById("view-personnel").textContent = personnel;
+
+  // Modal footer actions
+  const footer = document.getElementById("modal-footer-actions");
+  footer.innerHTML = ""; // Clear previous buttons
+
+  // Add cancel button if status is Pending or Approved
+  if (status === "Pending" || status === "Approved") {
+    // Use Django to generate a base URL with a dummy id (0)
+    let cancelUrl = "{% url 'cancel_request' 0 %}".replace("0", id);
+
+    footer.innerHTML = `
+      <form method="post" action="${cancelUrl}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger">Cancel Request</button>
+      </form>
+    `;
+  }
+
+  document.getElementById("viewRequestModal").style.display = "flex";
   }
 
   function closeViewModal() {

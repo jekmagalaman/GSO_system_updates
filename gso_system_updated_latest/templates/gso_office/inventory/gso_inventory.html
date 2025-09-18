@@ -82,36 +82,30 @@
                   <form method="post" action="{% url 'update_inventory_item' item.id %}">
                     {% csrf_token %}
                     <div class="modal-header">
-                      <h5 class="modal-title" id="editMaterialModalLabel{{ item.id }}">Edit Material</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      <h5 class="modal-title">Edit Material</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                      {% for field in form %}
-                        <div class="mb-3">
-                          {{ field.label_tag }}
-                          {% if field.field.widget.input_type == "select" %}
-                            {{ field }}
-                          {% else %}
-                            {{ field|add_class:"form-control" }}
-                          {% endif %}
-                          {% for error in field.errors %}
-                            <div class="text-danger small">{{ error }}</div>
-                          {% endfor %}
-                        </div>
-                      {% endfor %}
-                      <!-- Pre-fill values -->
-                      <script>
-                        document.addEventListener("DOMContentLoaded", function() {
-                            const modal = document.getElementById("editMaterialModal{{ item.id }}");
-                            modal.addEventListener("show.bs.modal", function() {
-                                modal.querySelector("[name='name']").value = "{{ item.name }}";
-                                modal.querySelector("[name='description']").value = "{{ item.description|default:'' }}";
-                                modal.querySelector("[name='quantity']").value = "{{ item.quantity }}";
-                                modal.querySelector("[name='unit']").value = "{{ item.unit }}";
-                                modal.querySelector("[name='category']").value = "{{ item.category }}";
-                            });
-                        });
-                      </script>
+                      <div class="mb-3">
+                        <label>Name</label>
+                        <input type="text" name="name" class="form-control" value="{{ item.name }}">
+                      </div>
+                      <div class="mb-3">
+                        <label>Description</label>
+                        <input type="text" name="description" class="form-control" value="{{ item.description|default:'' }}">
+                      </div>
+                      <div class="mb-3">
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" class="form-control" value="{{ item.quantity }}">
+                      </div>
+                      <div class="mb-3">
+                        <label>Unit</label>
+                        <input type="text" name="unit" class="form-control" value="{{ item.unit }}">
+                      </div>
+                      <div class="mb-3">
+                        <label>Category</label>
+                        <input type="text" name="category" class="form-control" value="{{ item.category }}">
+                      </div>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -129,8 +123,8 @@
                   <form method="post" action="{% url 'remove_inventory_item' item.id %}">
                     {% csrf_token %}
                     <div class="modal-header">
-                      <h5 class="modal-title text-danger" id="deleteMaterialModalLabel{{ item.id }}">Delete Material</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      <h5 class="modal-title text-danger">Delete Material</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                       <p>Are you sure you want to delete <strong>{{ item.name }}</strong>?</p>
@@ -143,7 +137,10 @@
                 </div>
               </div>
             </div>
-
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No materials found.</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
@@ -156,8 +153,8 @@
       <form method="post" action="{% url 'add_inventory_item' %}">
         {% csrf_token %}
         <div class="modal-header">
-          <h5 class="modal-title" id="addMaterialModalLabel">Add Material</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5 class="modal-title">Add Material</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           {% for field in form %}

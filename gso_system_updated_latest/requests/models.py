@@ -15,6 +15,7 @@ class ServiceRequest(models.Model):
         ("In Progress", "In Progress"),
         ("Done for Review", "Done for Review"),
         ("Completed", "Completed"),
+        ("cancelled", "Cancelled"),
     ]
     
     requestor = models.ForeignKey(

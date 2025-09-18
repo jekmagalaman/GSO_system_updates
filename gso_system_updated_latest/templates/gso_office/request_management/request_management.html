@@ -44,7 +44,7 @@
       <tr>
         <td>{{ req.id }}</td>
         <td>{{ req.created_at|date:"Y-m-d" }}</td>
-        <td>{{ req.requestor.get_full_name|default:req.requestor.username }}</td>
+        <td>{{ req.requestor.department }}</td>
         <td>{{ req.get_unit_display }}</td>
         <td>{{ req.assigned_personnel.get_full_name|default:"Unassigned" }}</td>
         <td>
@@ -52,12 +52,14 @@
             <span class="status-badge status-pending">● Pending</span>
           {% elif req.status == "Approved" %}
             <span class="status-badge status-approved">● Approved</span>
-          {% elif req.status == "Ongoing" %}
-            <span class="status-badge status-ongoing">● Ongoing</span>
-          {% elif req.status == "Done for Review" %}
-            <span class="status-badge status-review">● Done for Review</span>
+          {% elif req.status == "In Progress" %}
+            <span class="status-badge status-inprogress">● In Progress</span>
           {% elif req.status == "Completed" %}
             <span class="status-badge status-completed">● Completed</span>
+          {% elif req.status == "Cancelled" %}
+            <span class="status-badge status-cancelled">● Cancelled</span>
+          {% else %}
+            <span class="status-badge">{{ req.status }}</span>
           {% endif %}
         </td>
         <td>
@@ -285,8 +287,8 @@ function openModal(id, date, office, unit, description, status, personnel) {
   const approveForm = document.getElementById("approveForm");
   approveForm.action = "{% url 'approve_request' 0 %}".replace("0", id);
 
-  // Only show approve button if personnel is assigned
-  if (personnel && personnel.trim() !== "") {
+  // Show approve button only if status is Pending AND personnel is assigned
+  if (status === "Pending" && personnel && personnel.trim() !== "") {
     approveForm.style.display = "block";
   } else {
     approveForm.style.display = "none";

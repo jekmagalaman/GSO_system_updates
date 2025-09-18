@@ -20,7 +20,7 @@ def is_unit_head(user):
     return user.is_authenticated and user.role == "unit_head"
 
 def is_requestor(user):
-    return user.is_authenticated and user.role == "employee"  # adjust if needed
+    return user.is_authenticated and user.role == "requestor"  # adjust if needed
 
 
 
@@ -275,6 +275,26 @@ def add_request(request):
         )
         return redirect("requestor_request_management")
     return redirect("requestor_request_management")
+
+
+
+@login_required
+def cancel_request(request, pk):
+    req = get_object_or_404(ServiceRequest, pk=pk, requestor=request.user)
+
+    if req.status in ["Pending", "Approved"]:  # allow cancel only if not yet done
+        req.status = "Cancelled"
+        req.save()
+
+    return redirect("requestor_request_management")  # adjust to your URL name
+
+
+
+
+
+
+
+
 
 
 @login_required

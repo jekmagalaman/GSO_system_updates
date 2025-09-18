@@ -11,7 +11,10 @@ urlpatterns = [
     #GSO Office URLs
     path('account-management/', views.account_management, name='account_management'),
     path('accounts/', views.account_view, name='account_management'),
+    path("accounts/add/", views.add_user, name="add_user"),
     path('edit/<int:user_id>/', views.edit_user, name='edit_user'),
+
+
 
 
     #Requestor URLs

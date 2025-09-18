@@ -365,6 +365,25 @@ body {
     color: #059669;
 }
 
+.status-cancelled {
+  color: #fff;
+  background: #6c757d;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 .action-btn {
     background: none;
     border: none;

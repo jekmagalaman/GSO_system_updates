@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from .forms import UserEditForm, RequestorProfileUpdate
+from .forms import UserEditForm, RequestorProfileUpdate, UserForm
+from django.contrib.auth.hashers import make_password
+
+
 
 User = get_user_model()
 
@@ -14,8 +17,8 @@ def role_redirect(request):
         return redirect('unit-head-dashboard')
     elif user.role == 'personnel':
         return redirect('personnel-dashboard')
-    elif user.role == 'employee':
-        return redirect('employee-dashboard')
+    elif user.role == 'requestor':
+        return redirect('requestor-dashboard')
     else:
         return redirect('login')
 
@@ -64,6 +67,40 @@ def edit_user(request, user_id):
         form = UserEditForm(instance=user)
     
     return render(request, 'gso_office/accounts/account_edit.html', {'form': form, 'user': user})
+
+
+
+
+def add_user(request):
+    if request.method == "POST":
+        form = UserForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.password = make_password(form.cleaned_data["password"])  # hash password
+            user.save()
+            return redirect("account_management")  # go back to the list
+    else:
+        form = UserForm()
+    return render(request, "gso_office/accounts/add_user.html", {"form": form})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
