@@ -52,8 +52,12 @@
             <span class="status-badge status-pending">● Pending</span>
           {% elif req.status == "Approved" %}
             <span class="status-badge status-approved">● Approved</span>
-          {% else %}
-            <span class="status-badge">{{ req.status }}</span>
+          {% elif req.status == "Ongoing" %}
+            <span class="status-badge status-ongoing">● Ongoing</span>
+          {% elif req.status == "Done for Review" %}
+            <span class="status-badge status-review">● Done for Review</span>
+          {% elif req.status == "Completed" %}
+            <span class="status-badge status-completed">● Completed</span>
           {% endif %}
         </td>
         <td>

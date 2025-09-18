@@ -2,7 +2,7 @@ from django.db import models
 
 # Define available target models (app_label.ModelName)
 TARGET_MODELS = [
-    ('inventory.Item', 'Inventory Items'),
+    ('inventory.InventoryItem', 'Inventory Items'),
     ('reports.WorkAccomplishmentReport', 'Work Accomplishment Reports'),
     ('requests.Request', 'Requests'),
 ]

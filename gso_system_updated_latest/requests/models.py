@@ -8,6 +8,14 @@ class ServiceRequest(models.Model):
         ('electrical', 'Electrical'),
         ('motorpool', 'Motorpool'),
     ]
+
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Approved", "Approved"),
+        ("In Progress", "In Progress"),
+        ("Done for Review", "Done for Review"),
+        ("Completed", "Completed"),
+    ]
     
     requestor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -17,8 +25,9 @@ class ServiceRequest(models.Model):
     
     unit = models.CharField(max_length=50, choices=UNIT_CHOICES)
     description = models.TextField()
-    status = models.CharField(default='Pending', max_length=20)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
     created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
     
     assigned_personnel = models.ForeignKey(

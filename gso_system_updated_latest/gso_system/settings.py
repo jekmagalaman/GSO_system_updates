@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'inventory',
     'reports',
     'migration_tool',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

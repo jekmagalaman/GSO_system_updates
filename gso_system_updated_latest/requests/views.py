@@ -6,6 +6,7 @@ from django.db.models import Q
 from .models import ServiceRequest
 
 from accounts.models import User
+from django.utils import timezone
 
 
 
@@ -103,6 +104,34 @@ def unit_head_request_management(request):
 
 
 
+
+
+@login_required
+def unit_head_review_task(request, pk):
+    req = get_object_or_404(ServiceRequest, pk=pk)
+
+    if request.method == "POST":
+        if "approve_done" in request.POST:
+            req.status = "Completed"
+            req.completed_at = timezone.now()
+            req.save()
+
+    return render(
+        request,
+        "unit_head/unit_head_request_management/request_detail.html",
+        {"req": req}
+    )
+
+
+
+
+
+
+
+
+
+
+
 @login_required
 def request_detail_assign(request, pk):
     req = get_object_or_404(ServiceRequest, id=pk)
@@ -175,11 +204,29 @@ def personnel_task_management(request):
 @login_required
 def personnel_task_detail(request, pk):
     task = get_object_or_404(ServiceRequest, pk=pk, assigned_personnel=request.user)
+
+    if request.method == "POST":
+        if "start" in request.POST:
+            task.status = "In Progress"
+            task.save()
+        elif "done" in request.POST:
+            task.status = "Done for Review"
+            task.save()
+
     return render(
         request,
         "personnel/personnel_task_management/personnel_task_detail.html",
         {"task": task}
     )
+
+
+
+
+
+
+
+
+
 
 
 
