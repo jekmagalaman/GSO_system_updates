@@ -103,55 +103,38 @@ def unit_head_request_management(request):
     return render(request, "unit_heads/unit_head_request_management/unit_head_request_management.html", context)
 
 
-
-
-
 @login_required
-def unit_head_review_task(request, pk):
-    req = get_object_or_404(ServiceRequest, pk=pk)
+@user_passes_test(is_unit_head)
+def unit_head_request_detail(request, pk):
+    req = get_object_or_404(ServiceRequest, id=pk)
+    personnel = User.objects.filter(role="personnel", unit=req.unit)
 
     if request.method == "POST":
-        if "approve_done" in request.POST:
+        # ✅ Assign personnel (does NOT approve request anymore)
+        if "personnel_ids" in request.POST and req.status not in ["Done for Review", "Completed"]:
+            selected_ids = request.POST.getlist("personnel_ids")
+            req.assigned_personnel.set(selected_ids)
+            req.save()
+
+        # ✅ Approve completion (only if personnel submitted for review)
+        elif "approve_done" in request.POST and req.status == "Done for Review":
             req.status = "Completed"
             req.completed_at = timezone.now()
             req.save()
 
-    return render(
-        request,
-        "unit_head/unit_head_request_management/request_detail.html",
-        {"req": req}
-    )
-
-
-
-
-
-
-
-
-
-
-
-@login_required
-def request_detail_assign(request, pk):
-    req = get_object_or_404(ServiceRequest, id=pk)
-
-    # Get only personnel under the same unit
-    personnel = User.objects.filter(role="personnel", unit=req.unit)
-
-    if request.method == "POST":
-        personnel_id = request.POST.get("personnel_id")
-        if personnel_id:
-            selected_personnel = get_object_or_404(User, id=personnel_id)
-            req.assigned_personnel = selected_personnel
-            # ❌ Do NOT touch req.status here
+        # ✅ Send back to personnel (if not satisfied with work)
+        elif "reject_done" in request.POST and req.status == "Done for Review":
+            req.status = "In Progress"
             req.save()
-        return redirect("unit_head_request_management")
+
+        return redirect("unit_head_request_detail", pk=req.id)
 
     return render(request, "unit_heads/unit_head_request_management/request_detail.html", {
         "req": req,
         "personnel": personnel
     })
+
+
 
 
 
@@ -200,24 +183,31 @@ def personnel_task_management(request):
     )
 
 
-
 @login_required
 def personnel_task_detail(request, pk):
     task = get_object_or_404(ServiceRequest, pk=pk, assigned_personnel=request.user)
 
     if request.method == "POST":
-        if "start" in request.POST:
+        # Start task (only if approved by GSO)
+        if "start" in request.POST and task.status == "Approved":
             task.status = "In Progress"
+            task.started_at = timezone.now()
             task.save()
-        elif "done" in request.POST:
+
+        # Mark as done (only if currently in progress)
+        elif "done" in request.POST and task.status == "In Progress":
             task.status = "Done for Review"
+            task.done_at = timezone.now()
             task.save()
+
+        return redirect("personnel_task_detail", pk=task.id)
 
     return render(
         request,
         "personnel/personnel_task_management/personnel_task_detail.html",
         {"task": task}
     )
+
 
 
 
@@ -263,18 +253,24 @@ def requestor_request_management(request):
     return render(request, "requestor/requestor_request_management/requestor_request_management.html", {"requests": requests_qs})
 
 
+
 @login_required
 @user_passes_test(is_requestor)
 def add_request(request):
     if request.method == "POST":
         ServiceRequest.objects.create(
             requestor=request.user,
+            full_name=request.POST.get("full_name"),
+            email=request.POST.get("email"),
+            contact_number=request.POST.get("contact_number"),
             unit=request.POST.get("unit"),
             description=request.POST.get("description"),
             status="Pending",
+            department=request.user.department
         )
         return redirect("requestor_request_management")
     return redirect("requestor_request_management")
+
 
 
 

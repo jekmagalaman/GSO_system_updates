@@ -23,12 +23,5 @@
     <a href="{% url 'personnel_task_management' %}" class="btn btn-secondary">← Back</a>
   </div>
   
-  {% if task.status == "Done for Review" %}
-    <form method="post">
-      {% csrf_token %}
-      <button type="submit" name="approve_done" class="btn btn-success">Approve Completion</button>
-    </form>
-  {% endif %}
-  
 </div>
 {% endblock %}

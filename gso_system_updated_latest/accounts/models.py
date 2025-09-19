@@ -11,7 +11,7 @@ class User(AbstractUser):
     ]
 
     UNIT_CHOICES = [
-        ('maintenance', 'Maintenance'),
+        ('repair and maintenance', 'Repair and Maintenance'),
         ('electrical', 'Electrical'),
         ('utility', 'Utility'),
         ('motorpool', 'Motorpool'),
@@ -36,7 +36,7 @@ class User(AbstractUser):
 
         # Unit Head and Personnel must have a valid service unit
         if self.role in ["unit_head", "personnel"] and not self.unit:
-            raise ValidationError(f"{self.get_role_display()} must be assigned to a valid service unit (Maintenance, Electrical, Utility, Motorpool).")
+            raise ValidationError(f"{self.get_role_display()} must be assigned to a valid service unit (Repair and Maintenance, Electrical, Utility, Motorpool).")
 
         # Requestors should not have a service unit
         if self.role == "requestor" and self.unit:

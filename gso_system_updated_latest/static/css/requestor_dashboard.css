@@ -731,6 +731,11 @@ html, body {
   color: #374151;
 }
 
+
+
+
+
+
 /* Status Badges */
 .status-badge {
   display: inline-block;
@@ -744,13 +749,18 @@ html, body {
 
 /* Status Colors */
 .status-pending {
-  background-color: #fef3c7;
-  color: #ccc500;
+  background-color: #fffb91;
+  color: #aca600;
 }
 
 .status-approved {
-  background-color: #d1fae5;
-  color: #059669;
+  background-color: #a2ffcf;
+  color: #00865c;
+}
+
+.status-doneforreview {
+  background-color: #cfd4ff;  /* soft blue background */
+  color: #2b3faa;             /* dark blue text */
 }
 
 .status-completed {
@@ -759,6 +769,11 @@ html, body {
 }
 
 .status-inprogress {
-  background-color: #e0f2fe;
-  color: #1e40af;
+  background-color: #ffdaa2;
+  color: #ee8f00;
+}
+
+.status-cancelled {
+  background-color: #ff9c9c;
+  color: #d10000;
 }

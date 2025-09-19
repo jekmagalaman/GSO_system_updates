@@ -306,6 +306,15 @@ body {
     border-collapse: collapse;
 }
 
+
+.table td {
+    max-width: 150px; /* adjust as needed */
+    white-space: nowrap; /* keep text on one line */
+    overflow: hidden;    /* hide overflow */
+    text-overflow: ellipsis; /* show ... for overflowing text */
+}
+
+
 .table th {
     background-color: #f8fafc;
     padding: 15px 12px;
@@ -347,30 +356,46 @@ body {
 
 
 
+/* Status Badges */
 .status-badge {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-    display: inline-block;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  min-width: 80px;
 }
 
+/* Status Colors */
 .status-pending {
-    background-color: #fef3c7;
-    color: #ccc500;
+  background-color: #fffb91;
+  color: #aca600;
 }
 
 .status-approved {
-    background-color: #d1fae5;
-    color: #059669;
+  background-color: #a2ffcf;
+  color: #00865c;
+}
+
+.status-doneforreview {
+  background-color: #cfd4ff;  /* soft blue background */
+  color: #2b3faa;             /* dark blue text */
+}
+
+.status-completed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-inprogress {
+  background-color: #ffdaa2;
+  color: #ee8f00;
 }
 
 .status-cancelled {
-  color: #fff;
-  background: #6c757d;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.9em;
+  background-color: #ff9c9c;
+  color: #d10000;
 }
 
 

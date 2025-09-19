@@ -10,12 +10,14 @@ urlpatterns = [
     path("requests/<int:pk>/approve/", views.approve_request, name="approve_request"),
 
 
-    #Unit Head URLs
+    # Unit Head URLs
     path('unit-head/', views.unit_head_request_management, name='unit-head-dashboard'),
     path('unit-head/unit-head-request-management/', views.unit_head_request_management, name='unit_head_request_management'),
     path('unit-head/unit-head-request_history/', views.unit_head_request_history, name='unit_head_request_history'),
 
-    path("unit-head/requests/<int:pk>/", views.request_detail_assign, name="request_detail_assign"),
+    # Updated detail URL (use the new merged view)
+    path("unit-head/requests/<int:pk>/", views.unit_head_request_detail, name="unit_head_request_detail"),
+
 
 
 

@@ -43,10 +43,10 @@
         <tbody>
             {% for task in tasks %}
             <tr>
-                <td>{{ task.request_id }}</td>
-                <td>{{ task.requesting_office }}</td>
+                <td>{{ task.id }}</td>
+                <td>{{ task.requestor.department }}</td>
                 <td>{{ task.unit|title }}</td>
-                <td>{{ task.date_submitted|date:"Y-m-d" }}</td>
+                <td>{{ task.created_at|date:"Y-m-d" }}</td>
                 <td>
                     <span class="status-badge status-{{ task.status|lower }}">
                         ● {{ task.status }}
