@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from inventory.models import InventoryItem
 
 class ServiceRequest(models.Model):
     UNIT_CHOICES = [
@@ -48,5 +49,26 @@ class ServiceRequest(models.Model):
     )
 
 
+    materials = models.ManyToManyField(
+        InventoryItem,              # use import
+        through='RequestMaterial',
+        blank=True,
+        related_name="requests"
+    )
+
+
+
     def __str__(self):
         return f"Request #{self.id} - {self.get_unit_display()}"
+
+
+
+
+
+class RequestMaterial(models.Model):
+    request = models.ForeignKey(ServiceRequest, on_delete=models.CASCADE)
+    material = models.ForeignKey(InventoryItem, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.material.name} x {self.quantity} for Request #{self.request.id}"

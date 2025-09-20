@@ -47,12 +47,35 @@
                 <td>{{ task.requestor.department }}</td>
                 <td>{{ task.unit|title }}</td>
                 <td>{{ task.created_at|date:"Y-m-d" }}</td>
+
                 <td>
-                    <span class="status-badge status-{{ task.status|lower }}">
-                        ● {{ task.status }}
-                    </span>
-                </td>
-                <td>{{ task.assigned_personnel.get_full_name }}</td>
+                    {% if task.status == "Pending" %}
+                      <span class="status-badge status-pending">● Pending</span>
+                    {% elif task.status == "Approved" %}
+                      <span class="status-badge status-approved">● Approved</span>
+                    {% elif task.status == "In Progress" %}
+                      <span class="status-badge status-inprogress">● In Progress</span>
+                    {% elif task.status == "Done for Review" %}
+                      <span class="status-badge status-doneforreview">● Done for Review</span>
+                    {% elif task.status == "Completed" %}
+                      <span class="status-badge status-completed">● Completed</span>
+                    {% elif task.status == "Cancelled" %}
+                      <span class="status-badge status-cancelled">● Cancelled</span>
+                    {% else %}
+                      <span class="status-badge">{{ task.status }}</span>
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    {% if task.assigned_personnel.all %}
+                      {% for p in task.assigned_personnel.all %}
+                        {{ p.get_full_name|default:p.username }}{% if not forloop.last %}, {% endif %}
+                      {% endfor %}
+                    {% else %}
+                      Unassigned
+                    {% endif %}
+                  </td>
+
                 <td>
                     <form action="{% url 'personnel_task_detail' task.id %}" method="get" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-primary">Open</button>

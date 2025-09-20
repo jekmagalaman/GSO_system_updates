@@ -18,7 +18,7 @@
     <!-- Unit Filter -->
     <select name="unit" class="form-select form-select-sm" onchange="this.form.submit()">
       <option value="">All Units</option>
-      <option value="maintenance" {% if request.GET.unit == 'maintenance' %}selected{% endif %}>Maintenance</option>
+      <option value="repair and maintenance" {% if request.GET.unit == 'repair and maintenance' %}selected{% endif %}>Repair and Maintenance</option>
       <option value="utility" {% if request.GET.unit == 'utility' %}selected{% endif %}>Utility</option>
       <option value="electrical" {% if request.GET.unit == 'electrical' %}selected{% endif %}>Electrical</option>
       <option value="motorpool" {% if request.GET.unit == 'motorpool' %}selected{% endif %}>Motorpool</option>
@@ -84,7 +84,8 @@
               '{{ req.get_unit_display }}',
               '{{ req.description|escapejs }}',
               '{{ req.status }}',
-              '{{ req.assigned_personnel.all|join:', '|escapejs }}'
+              '{{ req.assigned_personnel.all|join:", "|escapejs }}',
+              `{% for rm in req.requestmaterial_set.all %}{{ rm.material.name }} ({{ rm.quantity }} {{ rm.material.unit }}){% if not forloop.last %}, {% endif %}{% endfor %}`
             )">
             View
           </button>
@@ -138,6 +139,12 @@
           <label>Assigned Personnel:</label>
           <span id="modal-personnel"></span>
         </div>
+
+        <div class="detail-item description-box">
+          <label>Materials:</label>
+          <p id="modal-materials"></p>
+        </div>
+
         <div class="detail-item">
           <label>Status:</label>
           <span id="modal-status"></span>
@@ -287,14 +294,15 @@
 
 
 <script>
-function openModal(id, date, requestor, office, unit, description, status, personnel) {
+function openModal(id, date, requestor, office, unit, description, status, personnel, materials) {
   document.getElementById("modal-date").textContent = date;
-  document.getElementById("modal-requestor").textContent = requestor;  // 👈 set name
+  document.getElementById("modal-requestor").textContent = requestor;
   document.getElementById("modal-office").textContent = office;
   document.getElementById("modal-unit").textContent = unit;
   document.getElementById("modal-description").textContent = description;
   document.getElementById("modal-status").textContent = status;
   document.getElementById("modal-personnel").textContent = personnel || "Unassigned";
+  document.getElementById("modal-materials").textContent = materials || "No materials assigned";
 
   const approveForm = document.getElementById("approveForm");
   approveForm.action = "{% url 'approve_request' 0 %}".replace("0", id);

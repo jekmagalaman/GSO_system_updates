@@ -16,6 +16,15 @@ body {
 
 
 
+h4 {
+    color: #1e3a8a; /* dark blue for headings */
+}
+
+
+
+
+
+
 
 
 
@@ -384,8 +393,8 @@ body {
 }
 
 .status-completed {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: #dbdbdb;
+  color: #1d1d1d;
 }
 
 .status-inprogress {

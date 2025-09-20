@@ -3,7 +3,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import get_user_model
 from django.views.decorators.http import require_POST
 from django.db.models import Q
-from .models import ServiceRequest
+from .models import ServiceRequest, InventoryItem, RequestMaterial
+
+
+from django.contrib import messages
+
 
 from accounts.models import User
 from django.utils import timezone
@@ -36,7 +40,16 @@ def approve_request(request, pk):
     service_request = get_object_or_404(ServiceRequest, pk=pk)
     service_request.status = "Approved"
     service_request.save()
+    messages.success(request, f"Request {pk} has been approved.")
     return redirect("request_management")
+
+
+
+
+
+
+
+
 
 
 @login_required
@@ -103,26 +116,68 @@ def unit_head_request_management(request):
     return render(request, "unit_heads/unit_head_request_management/unit_head_request_management.html", context)
 
 
+
+
+
+
+
+
+
+
 @login_required
 @user_passes_test(is_unit_head)
 def unit_head_request_detail(request, pk):
     req = get_object_or_404(ServiceRequest, id=pk)
     personnel = User.objects.filter(role="personnel", unit=req.unit)
+    materials = InventoryItem.objects.filter(is_active=True)
 
     if request.method == "POST":
-        # ✅ Assign personnel (does NOT approve request anymore)
+        # ✅ Assign personnel
         if "personnel_ids" in request.POST and req.status not in ["Done for Review", "Completed"]:
             selected_ids = request.POST.getlist("personnel_ids")
             req.assigned_personnel.set(selected_ids)
             req.save()
 
-        # ✅ Approve completion (only if personnel submitted for review)
+        # ✅ Assign materials (with inventory deduction)
+        elif "material_ids" in request.POST and req.status not in ["Done for Review", "Completed"]:
+            selected_materials = request.POST.getlist("material_ids")
+
+            # Clear old materials first (restore inventory before reassigning)
+            for rm in req.requestmaterial_set.all():
+                rm.material.quantity += rm.quantity  # return stock
+                rm.material.save()
+            req.requestmaterial_set.all().delete()
+
+            # Deduct new selections
+            for mid in selected_materials:
+                material = get_object_or_404(InventoryItem, id=mid)
+                qty = int(request.POST.get(f"quantity_{mid}", 1))
+
+                # Check stock availability
+                if material.quantity < qty:
+                    messages.error(request, f"Not enough stock for {material.name}. Available: {material.quantity}")
+                    return redirect("unit_head_request_detail", pk=req.id)
+
+                # Deduct from inventory
+                material.quantity -= qty
+                material.save()
+
+                # Save request-material relation
+                RequestMaterial.objects.create(
+                    request=req,
+                    material=material,
+                    quantity=qty
+                )
+
+            messages.success(request, "Materials assigned and deducted from inventory.")
+
+        # ✅ Approve completion
         elif "approve_done" in request.POST and req.status == "Done for Review":
             req.status = "Completed"
             req.completed_at = timezone.now()
             req.save()
 
-        # ✅ Send back to personnel (if not satisfied with work)
+        # ✅ Reject completion
         elif "reject_done" in request.POST and req.status == "Done for Review":
             req.status = "In Progress"
             req.save()
@@ -131,8 +186,15 @@ def unit_head_request_detail(request, pk):
 
     return render(request, "unit_heads/unit_head_request_management/request_detail.html", {
         "req": req,
-        "personnel": personnel
+        "personnel": personnel,
+        "materials": materials,
     })
+
+
+
+
+
+
 
 
 
@@ -163,18 +225,22 @@ def unit_head_request_history(request):
 # --- Personnel Views ---
 @login_required
 def personnel_task_management(request):
-    # Get tasks assigned to the logged-in personnel
-    tasks = ServiceRequest.objects.filter(assigned_personnel=request.user)
+    # Always start with tasks assigned to the logged-in personnel
+    tasks = ServiceRequest.objects.filter(assigned_personnel=request.user).distinct()
 
-    # Optional filters
+    # Optional search filter
     search_query = request.GET.get("user_status")
-    status_filter = request.GET.get("status")   # <- change from unit to status
-
     if search_query:
-        tasks = tasks.filter(requesting_office__icontains=search_query)
+        tasks = tasks.filter(
+            Q(requestor__department__icontains=search_query) |
+            Q(full_name__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
 
+    # Optional status filter
+    status_filter = request.GET.get("status")
     if status_filter:
-        tasks = tasks.filter(status=status_filter)   # <- filter by status now
+        tasks = tasks.filter(status=status_filter)
 
     return render(
         request,
@@ -183,18 +249,22 @@ def personnel_task_management(request):
     )
 
 
+
+
+
+
+
+
+
 @login_required
 def personnel_task_detail(request, pk):
     task = get_object_or_404(ServiceRequest, pk=pk, assigned_personnel=request.user)
 
     if request.method == "POST":
-        # Start task (only if approved by GSO)
         if "start" in request.POST and task.status == "Approved":
             task.status = "In Progress"
             task.started_at = timezone.now()
             task.save()
-
-        # Mark as done (only if currently in progress)
         elif "done" in request.POST and task.status == "In Progress":
             task.status = "Done for Review"
             task.done_at = timezone.now()
@@ -202,11 +272,15 @@ def personnel_task_detail(request, pk):
 
         return redirect("personnel_task_detail", pk=task.id)
 
+    # ✅ Fetch assigned materials correctly
+    materials = task.requestmaterial_set.select_related("material")
+
     return render(
         request,
         "personnel/personnel_task_management/personnel_task_detail.html",
-        {"task": task}
+        {"task": task, "materials": materials}
     )
+
 
 
 
