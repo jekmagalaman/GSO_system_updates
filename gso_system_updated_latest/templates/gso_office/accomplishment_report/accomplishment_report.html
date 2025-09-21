@@ -19,47 +19,62 @@
         <!-- Unit Filter -->
         <select name="unit" class="form-select form-select-sm" onchange="this.form.submit()">
           <option value="">All Units</option>
-          <option value="maintenance" {% if request.GET.unit == 'maintenance' %}selected{% endif %}>Maintenance</option>
+          <option value="repair and maintenance" {% if request.GET.unit == 'repair and maintenance' %}selected{% endif %}>Repair and Maintenance</option>
           <option value="utility" {% if request.GET.unit == 'utility' %}selected{% endif %}>Utility</option>
           <option value="electrical" {% if request.GET.unit == 'electrical' %}selected{% endif %}>Electrical</option>
           <option value="motorpool" {% if request.GET.unit == 'motorpool' %}selected{% endif %}>Motorpool</option>
         </select>
     </form>
-  </div>
+</div>
 
 <div class="table-container">
     <table class="table">
         <thead>
             <tr>
-            <th>Date Started</th>
-            <th>Date Completed</th>
-            <th>Request Type</th>
-            <th>Description</th>
-            <th>Requesting Office</th>
-            <th>Assigned Personnel</th>
-            <th>Status</th>
-            <th>Rating</th>
+                <th>Date</th>
+                <th>Request Type / Unit</th>
+                <th>Description</th>
+                <th>Requesting Office</th>
+                <th>Assigned Personnel</th>
+                <th>Status</th>
+                <th>Rating</th>
+                <th>Source</th>
             </tr>
         </thead>
-        <tbody>
-            {% for report in reports %}
-            <tr>
-                <td>{{ report.date_started }}</td>
-                <td>{{ report.date_completed|default:"-" }}</td>
-                <td>{{ report.request_type }}</td>
-                <td>{{ report.description }}</td>
-                <td>{{ report.requesting_office }}</td>
-                <td>{{ report.assigned_personnel }}</td>
-                <td>{{ report.status }}</td>
-                <td>{{ report.rating|default:"Not Rated" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7" class="text-center">No reports available</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        </table>
-</div>
 
+        <tbody>
+            {% if reports %}
+                {% for report in reports %}
+                <tr>
+                    <td>{{ report.date|date:"Y-m-d" }}</td>
+                    <td>{{ report.unit|title }}</td>
+                    <td>{{ report.description }}</td>
+                    <td>{{ report.requesting_office }}</td>
+
+                    <td>
+                        {% for p in report.personnel %}
+                            {{ p }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    
+
+                    <td>{{ report.status|default:"Completed" }}</td>
+                    <td>{{ report.rating|default:"Not Rated" }}</td>
+                    <td>
+                        {% if report.type == "ServiceRequest" %}
+                            <span class="badge bg-success">Live</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Migrated</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="8" class="text-center">No reports available</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
