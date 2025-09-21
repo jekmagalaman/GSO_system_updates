@@ -9,6 +9,10 @@
   </a>
 </div>
 
+
+
+
+
 <!-- Unified Task Detail Card -->
 <div class="card shadow-sm border-0 mb-4">
   <div class="card-body">
@@ -98,4 +102,51 @@
     {% endif %}
   </div>
 </div>
+
+
+
+
+
+
+<!-- Reports Section -->
+<div class="mb-4">
+  <h5 class="fw-bold">Progress Reports</h5>
+
+  <!-- Existing Reports -->
+  {% if reports %}
+    <ul class="list-group mb-3">
+      {% for r in reports %}
+        <li class="list-group-item">
+          <div class="d-flex justify-content-between">
+            <strong>{{ r.personnel.get_full_name|default:r.personnel.username }}</strong>
+            <small class="text-muted">{{ r.created_at|date:"Y-m-d H:i" }}</small>
+          </div>
+          <p class="mb-0">{{ r.report_text }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No reports submitted yet.</p>
+  {% endif %}
+
+  <!-- Add New Report (only if In Progress) -->
+  {% if task.status == "In Progress" %}
+    <form method="post">
+      {% csrf_token %}
+      <textarea name="report_text" class="form-control mb-2" rows="3"
+                placeholder="Write your progress report here..."></textarea>
+
+      <div class="d-flex justify-content-end mt-3">
+        <button type="submit" name="add_report" class="btn btn-success">
+          Save Report
+        </button>
+      </div>
+      
+    </form>
+  {% endif %}
+</div>
+
+
+
+
 {% endblock %}

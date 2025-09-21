@@ -79,13 +79,14 @@
             onclick="openModal(
               '{{ req.id }}',
               '{{ req.created_at|date:"Y-m-d" }}',
-              '{{ req.requestor.get_full_name }}',
+              '{{ req.full_name }}',
               '{{ req.requestor.department }}',
               '{{ req.get_unit_display }}',
               '{{ req.description|escapejs }}',
               '{{ req.status }}',
               '{{ req.assigned_personnel.all|join:", "|escapejs }}',
-              `{% for rm in req.requestmaterial_set.all %}{{ rm.material.name }} ({{ rm.quantity }} {{ rm.material.unit }}){% if not forloop.last %}, {% endif %}{% endfor %}`
+              `{% for rm in req.requestmaterial_set.all %}{{ rm.material.name }} ({{ rm.quantity }} {{ rm.material.unit }}){% if not forloop.last %}, {% endif %}{% endfor %}`,
+              `{% for r in req.reports.all %}<strong>{{ r.personnel.get_full_name }}</strong> ({{ r.created_at|date:"Y-m-d H:i" }}): {{ r.report_text|escapejs }}<br>{% endfor %}`
             )">
             View
           </button>
@@ -115,26 +116,32 @@
     <!-- Body -->
     <div class="modal-body">
       <div class="details-grid">
+
         <div class="detail-item">
           <label>Date:</label>
           <span id="modal-date"></span>
         </div>
+
         <div class="detail-item">
           <label>Requesting Office:</label>
           <span id="modal-office"></span>
         </div>
+
         <div class="detail-item">
           <label>Requestor Name:</label>
           <span id="modal-requestor"></span>
         </div>
+
         <div class="detail-item">
           <label>Unit:</label>
           <span id="modal-unit"></span>
         </div>
+
         <div class="detail-item description-box">
           <label>Description:</label>
           <p id="modal-description"></p>
         </div>
+
         <div class="detail-item">
           <label>Assigned Personnel:</label>
           <span id="modal-personnel"></span>
@@ -149,7 +156,14 @@
           <label>Status:</label>
           <span id="modal-status"></span>
         </div>
+
+        <div class="detail-item description-box">
+          <label>Personnel Reports:</label>
+          <div id="modal-reports"></div>
+        </div>
+
       </div>
+
     </div>
 
     <!-- Footer -->
@@ -294,7 +308,7 @@
 
 
 <script>
-function openModal(id, date, requestor, office, unit, description, status, personnel, materials) {
+function openModal(id, date, requestor, office, unit, description, status, personnel, materials, reports) {
   document.getElementById("modal-date").textContent = date;
   document.getElementById("modal-requestor").textContent = requestor;
   document.getElementById("modal-office").textContent = office;
@@ -303,6 +317,7 @@ function openModal(id, date, requestor, office, unit, description, status, perso
   document.getElementById("modal-status").textContent = status;
   document.getElementById("modal-personnel").textContent = personnel || "Unassigned";
   document.getElementById("modal-materials").textContent = materials || "No materials assigned";
+  document.getElementById("modal-reports").innerHTML = reports || "No reports submitted";
 
   const approveForm = document.getElementById("approveForm");
   approveForm.action = "{% url 'approve_request' 0 %}".replace("0", id);

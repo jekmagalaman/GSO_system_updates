@@ -72,3 +72,18 @@ class RequestMaterial(models.Model):
 
     def __str__(self):
         return f"{self.material.name} x {self.quantity} for Request #{self.request.id}"
+    
+
+
+
+
+
+
+class TaskReport(models.Model):
+    request = models.ForeignKey("ServiceRequest", on_delete=models.CASCADE, related_name="reports")
+    personnel = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    report_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Report by {self.personnel} on Request #{self.request.id}"

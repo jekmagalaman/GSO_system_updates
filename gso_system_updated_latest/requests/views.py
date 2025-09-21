@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import get_user_model
 from django.views.decorators.http import require_POST
 from django.db.models import Q
-from .models import ServiceRequest, InventoryItem, RequestMaterial
+from .models import ServiceRequest, InventoryItem, RequestMaterial, TaskReport
 
 
 from django.contrib import messages
@@ -55,7 +55,13 @@ def approve_request(request, pk):
 @login_required
 @user_passes_test(is_gso)
 def request_management(request):
-    requests_qs = ServiceRequest.objects.select_related("requestor").all().order_by("-created_at")
+    requests_qs = (
+        ServiceRequest.objects
+        .select_related("requestor")
+        .prefetch_related("assigned_personnel", "reports__personnel")  # ✅ include reports + personnel
+        .all()
+        .order_by("-created_at")
+    )
 
     # Search filter
     search_query = request.GET.get("user_status")
@@ -76,6 +82,20 @@ def request_management(request):
         "requests": requests_qs,
     }
     return render(request, "gso_office/request_management/request_management.html", context)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -130,6 +150,9 @@ def unit_head_request_detail(request, pk):
     req = get_object_or_404(ServiceRequest, id=pk)
     personnel = User.objects.filter(role="personnel", unit=req.unit)
     materials = InventoryItem.objects.filter(is_active=True)
+
+    # ✅ Fetch reports linked to this request
+    reports = req.reports.select_related("personnel").order_by("-created_at")
 
     if request.method == "POST":
         # ✅ Assign personnel
@@ -188,7 +211,9 @@ def unit_head_request_detail(request, pk):
         "req": req,
         "personnel": personnel,
         "materials": materials,
+        "reports": reports,  # ✅ Now available in template
     })
+
 
 
 
@@ -261,24 +286,39 @@ def personnel_task_detail(request, pk):
     task = get_object_or_404(ServiceRequest, pk=pk, assigned_personnel=request.user)
 
     if request.method == "POST":
+        # ✅ Handle status update
         if "start" in request.POST and task.status == "Approved":
             task.status = "In Progress"
             task.started_at = timezone.now()
             task.save()
+
         elif "done" in request.POST and task.status == "In Progress":
             task.status = "Done for Review"
             task.done_at = timezone.now()
             task.save()
+
+        # ✅ Handle adding a TaskReport
+        elif "add_report" in request.POST:
+            report_text = request.POST.get("report_text", "").strip()
+            if report_text:
+                TaskReport.objects.create(
+                    request=task,
+                    personnel=request.user,
+                    report_text=report_text,
+                )
 
         return redirect("personnel_task_detail", pk=task.id)
 
     # ✅ Fetch assigned materials correctly
     materials = task.requestmaterial_set.select_related("material")
 
+    # ✅ Fetch reports for display
+    reports = task.reports.select_related("personnel").order_by("-created_at")
+
     return render(
         request,
         "personnel/personnel_task_management/personnel_task_detail.html",
-        {"task": task, "materials": materials}
+        {"task": task, "materials": materials, "reports": reports}
     )
 
 
