@@ -232,7 +232,25 @@ def unit_head_request_detail(request, pk):
 @login_required
 @user_passes_test(is_unit_head)
 def unit_head_request_history(request):
-    return render(request, "unit_heads/unit_head_request_history/unit_head_request_history.html")
+    user = request.user
+    unit = getattr(user, "unit", None)  # Assuming each unit head has a 'unit' field
+
+    # Filter requests for this unit with status Completed or Cancelled
+    requests_queryset = ServiceRequest.objects.filter(
+        unit=unit,
+        status__in=["Completed", "Cancelled"]
+    ).order_by("-created_at")
+
+    # Optional: Search by description
+    search_query = request.GET.get("user_status")
+    if search_query:
+        requests_queryset = requests_queryset.filter(description__icontains=search_query)
+
+    return render(
+        request,
+        "unit_heads/unit_head_request_history/unit_head_request_history.html",
+        {"requests": requests_queryset}
+    )
 
 
 
@@ -410,4 +428,14 @@ def cancel_request(request, pk):
 @login_required
 @user_passes_test(is_requestor)
 def requestor_request_history(request):
-    return render(request, "requestor/requestor_request_history/requestor_request_history.html")
+    # Filter only Completed and Cancelled requests for the logged-in requestor
+    request_history = ServiceRequest.objects.filter(
+        requestor=request.user,
+        status__in=["Completed", "Cancelled"]
+    ).order_by("-created_at")  # newest first
+
+    return render(
+        request,
+        "requestor/requestor_request_history/requestor_request_history.html",
+        {"request_history": request_history}
+    )

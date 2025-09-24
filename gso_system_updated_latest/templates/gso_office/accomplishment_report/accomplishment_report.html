@@ -6,26 +6,32 @@
 <div class="header d-flex align-items-center justify-content-between">
     <h1 class="page-title">WORK ACCOMPLISHMENT REPORT</h1>
   
-    <form method="get" class="d-flex gap-2">
-        <!-- Search -->
+    <form method="get" action="{% url 'generate_ipmt' %}" class="d-flex gap-2">
+        <!-- Personnel -->
         <input 
             type="text" 
-            name="user_status" 
+            name="personnel" 
             class="form-control form-control-sm" 
-            placeholder="Search..." 
-            value="{{ request.GET.user_status }}"
+            placeholder="Personnel Name"
+            required
         >
     
-        <!-- Unit Filter -->
-        <select name="unit" class="form-select form-select-sm" onchange="this.form.submit()">
-          <option value="">All Units</option>
-          <option value="repair and maintenance" {% if request.GET.unit == 'repair and maintenance' %}selected{% endif %}>Repair and Maintenance</option>
-          <option value="utility" {% if request.GET.unit == 'utility' %}selected{% endif %}>Utility</option>
-          <option value="electrical" {% if request.GET.unit == 'electrical' %}selected{% endif %}>Electrical</option>
-          <option value="motorpool" {% if request.GET.unit == 'motorpool' %}selected{% endif %}>Motorpool</option>
-        </select>
+        <!-- Month -->
+        <input 
+            type="month" 
+            name="month" 
+            class="form-control form-control-sm"
+            required
+        >
+    
+        <button type="submit" class="btn btn-sm btn-success">
+            Generate IPMT (Excel)
+        </button>
     </form>
+    
 </div>
+
+
 
 <div class="table-container">
     <table class="table">

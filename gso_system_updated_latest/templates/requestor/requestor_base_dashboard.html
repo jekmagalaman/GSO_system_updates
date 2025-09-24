@@ -19,10 +19,8 @@
         <h1 class="header-title">PalSU - GSO</h1>
     </div>
     <div class="header-right">
-        <span class="welcome"><b>Welcome</b> {{ user.get_full_name|default:user.username }}</span>
-        <button class="header-btn">
-            <span class="icon icon-bell"></span>
-        </button>
+        <span class="welcome"><b>Welcome</b> {{ user.department }}</span>
+  
         <div class="logout-icon" style="margin-left: auto; cursor: pointer;">
             <form method="post" action="{% url 'logout' %}" style="display: inline;">
                 {% csrf_token %}

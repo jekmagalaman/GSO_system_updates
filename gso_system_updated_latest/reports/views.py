@@ -78,3 +78,63 @@ def accomplishment_report(request):
         "gso_office/accomplishment_report/accomplishment_report.html",
         {"reports": reports}
     )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import openpyxl
+from django.http import HttpResponse
+from django.conf import settings
+import os
+import calendar
+
+@login_required
+def generate_ipmt(request):
+    personnel_name = request.GET.get("personnel")
+    month_filter = request.GET.get("month")
+
+    if not personnel_name or not month_filter:
+        return HttpResponse("Personnel and month are required.", status=400)
+
+    # Parse year-month
+    year, month_num = map(int, month_filter.split("-"))
+    month_name = f"{calendar.month_name[month_num]} {year}"
+
+    # --- Collect reports (ServiceRequest + MigratedReport) ---
+    reports = []  
+    # Fill this list with reports as before (your logic here)
+
+    # --- Load the IPMT template ---
+    template_path = os.path.join(settings.BASE_DIR, "static", "ipmt_template.xlsx")
+    wb = openpyxl.load_workbook(template_path)
+    ws = wb.active
+
+    # Header info
+    ws["B8"] = personnel_name  # Employee Name
+    ws["B11"] = month_name     # Month
+
+    # Start writing accomplishments (row 13 downwards)
+    start_row = 13
+    for i, r in enumerate(reports, start=start_row):
+        ws.cell(row=i, column=1).value = r.get("unit")          # Success Indicator
+        ws.cell(row=i, column=2).value = r.get("description")   # Actual Accomplishment
+        ws.cell(row=i, column=3).value = "Completed"            # Comments / Remarks
+
+    # Return file
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    filename = f"IPMT_{personnel_name}_{month_filter}.xlsx"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
